@@ -29,7 +29,7 @@ import android.content.res.Resources;
 
 /**
  * Takes care of setting initial wallpaper for a user, by selecting the
- * first wallpaper that is not in use by another user.
+ * first wallpaper that is available.
  */
 public class UserInitializeReceiver extends BroadcastReceiver {
     @Override
@@ -42,19 +42,11 @@ public class UserInitializeReceiver extends BroadcastReceiver {
         final String packageName = resources.getResourcePackageName(R.array.wallpapers);
         ArrayList<Integer> list = new ArrayList<Integer>();
         addWallpapers(resources, packageName, R.array.wallpapers, list);
-        addWallpapers(resources, packageName, R.array.extra_wallpapers, list);
         WallpaperManager wpm = (WallpaperManager) context.getSystemService(
                 Context.WALLPAPER_SERVICE);
-        for (int i=0; i<list.size(); i++) {
-            int resid = list.get(i);
-            if (!wpm.hasResourceWallpaper(resid)) {
-                try {
-                    wpm.setResource(resid);
-                } catch (IOException e) {
-                }
-                return;
-            }
-        }
+        try {
+            wpm.setResource(list.get(0));
+        } catch (IOException e) {}
     }
 
     private void addWallpapers(Resources resources, String packageName, int resid,
