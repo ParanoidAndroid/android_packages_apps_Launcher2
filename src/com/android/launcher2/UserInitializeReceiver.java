@@ -45,7 +45,7 @@ public class UserInitializeReceiver extends BroadcastReceiver {
         addWallpapers(resources, packageName, R.array.extra_wallpapers, list);
         WallpaperManager wpm = (WallpaperManager) context.getSystemService(
                 Context.WALLPAPER_SERVICE);
-        for (int i=1; i<list.size(); i++) {
+        for (int i=0; i<list.size(); i++) {
             int resid = list.get(i);
             if (!wpm.hasResourceWallpaper(resid)) {
                 try {
