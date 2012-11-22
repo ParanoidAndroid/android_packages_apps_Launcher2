@@ -2007,20 +2007,19 @@ public final class Launcher extends Activity
      * @param v The view that was clicked.
      */
     public void onClickAllAppsButton(View v) {
-        if (mOnResumeState == State.NONE)
-        {
+        if (mOnResumeState == State.NONE){
             // Fade bars back to default in 250ms
             for (int i=ExtendedPropertiesUtils.PARANOID_COLORS_NAVBAR;
-                i <= ExtendedPropertiesUtils.PARANOID_COLORS_STATBAR; i++) {
-                String mSetting = Settings.System.getString(getContentResolver(),
-                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
-                String[] mColors = (mSetting == null || mSetting.equals("") ?
-                    ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i] :
-                    mSetting).split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+                    i <= ExtendedPropertiesUtils.PARANOID_COLORS_STATBAR; i++) {
+                String setting = Settings.System.getString(getContentResolver(),
+                        ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
+                String[] colors = (setting == null || setting.equals("") ?
+                        ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i] :
+                        setting).split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
                 Settings.System.putString(getContentResolver(),
-                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i], 
-                    mColors[0] + "|" + ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i].split(
-                    ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER)[0] + "|1|250");
+                        ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i], 
+                        colors[0] + "|" + ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i].split(
+                        ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER)[0] + "|1|250");
             }
         }
         showAllApps(true);
@@ -2787,24 +2786,24 @@ public final class Launcher extends Activity
     }
 
     void showWorkspace(boolean animated) {
-        if (mOnResumeState == State.NONE)
-        {
+        if (mOnResumeState == State.NONE){
             // Fade bars back to Launcher-color in 250ms
             String[] launcherColors = ExtendedPropertiesUtils.getProperty("com.android.launcher" +
-                ExtendedPropertiesUtils.PARANOID_COLORS_SUFFIX).split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+                    ExtendedPropertiesUtils.PARANOID_COLORS_SUFFIX).split(
+                    ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
             for (int i=ExtendedPropertiesUtils.PARANOID_COLORS_NAVBAR;
                 i <= ExtendedPropertiesUtils.PARANOID_COLORS_STATBAR; i++) {
-                String mSetting = Settings.System.getString(getContentResolver(),
-                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
-                String[] mColors = (mSetting == null || mSetting.equals("") ?
-                    ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i] :
-                    mSetting).split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+                String setting = Settings.System.getString(getContentResolver(),
+                        ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
+                String[] colors = (setting == null || setting.equals("") ?
+                        ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i] :
+                        setting).split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
                 String newColor = launcherColors.length == ExtendedPropertiesUtils.PARANOID_COLORS_COUNT ? 
-                    launcherColors[i] : ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i].split(
-                    ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER)[0];
+                        launcherColors[i] : ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i].split(
+                        ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER)[0];
                 Settings.System.putString(getContentResolver(),
-                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i], 
-                    mColors[0] + "|" + newColor + "|1|250");
+                        ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i], 
+                        colors[0] + "|" + newColor + "|1|250");
             }
         }
         showWorkspace(animated, null);
