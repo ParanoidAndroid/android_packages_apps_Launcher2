@@ -67,6 +67,7 @@ import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.TextKeyListener;
+import android.util.ExtendedPropertiesUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.HapticFeedbackConstants;
@@ -354,6 +355,7 @@ public final class Launcher extends Activity
         }
 
         super.onCreate(savedInstanceState);
+
         LauncherApplication app = ((LauncherApplication)getApplication());
         mSharedPrefs = getSharedPreferences(LauncherApplication.getSharedPreferencesKey(),
                 Context.MODE_PRIVATE);
@@ -2005,6 +2007,22 @@ public final class Launcher extends Activity
      * @param v The view that was clicked.
      */
     public void onClickAllAppsButton(View v) {
+        if (mOnResumeState == State.NONE)
+        {
+            // Fade bars back to default in 250ms
+            for (int i=ExtendedPropertiesUtils.PARANOID_COLORS_NAVBAR;
+                i <= ExtendedPropertiesUtils.PARANOID_COLORS_STATBAR; i++) {
+                String mSetting = Settings.System.getString(getContentResolver(),
+                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
+                String[] mColors = (mSetting == null || mSetting.equals("") ?
+                    ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i] :
+                    mSetting).split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+                Settings.System.putString(getContentResolver(),
+                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i], 
+                    mColors[0] + "|" + ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i].split(
+                    ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER)[0] + "|1|250");
+            }
+        }
         showAllApps(true);
     }
 
@@ -2769,6 +2787,26 @@ public final class Launcher extends Activity
     }
 
     void showWorkspace(boolean animated) {
+        if (mOnResumeState == State.NONE)
+        {
+            // Fade bars back to Launcher-color in 250ms
+            String[] launcherColors = ExtendedPropertiesUtils.getProperty("com.android.launcher" +
+                ExtendedPropertiesUtils.PARANOID_COLORS_SUFFIX).split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+            for (int i=ExtendedPropertiesUtils.PARANOID_COLORS_NAVBAR;
+                i <= ExtendedPropertiesUtils.PARANOID_COLORS_STATBAR; i++) {
+                String mSetting = Settings.System.getString(getContentResolver(),
+                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
+                String[] mColors = (mSetting == null || mSetting.equals("") ?
+                    ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i] :
+                    mSetting).split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+                String newColor = launcherColors.length == ExtendedPropertiesUtils.PARANOID_COLORS_COUNT ? 
+                    launcherColors[i] : ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i].split(
+                    ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER)[0];
+                Settings.System.putString(getContentResolver(),
+                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i], 
+                    mColors[0] + "|" + newColor + "|1|250");
+            }
+        }
         showWorkspace(animated, null);
     }
 
