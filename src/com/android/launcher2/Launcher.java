@@ -2009,17 +2009,17 @@ public final class Launcher extends Activity
     public void onClickAllAppsButton(View v) {
         if (mOnResumeState == State.NONE){
             // Fade bars back to default in 250ms
-            for (int i=ExtendedPropertiesUtils.PARANOID_COLORS_NAVBAR;
-                    i <= ExtendedPropertiesUtils.PARANOID_COLORS_STATBAR; i++) {
+            for (int i = 0; i < 5; i++) {
                 String setting = Settings.System.getString(getContentResolver(),
-                        ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
+                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
+
                 String[] colors = (setting == null || setting.equals("") ?
-                        ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i] :
-                        setting).split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+                    "00000000|00000000|0" : setting).split(
+                    ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+
                 Settings.System.putString(getContentResolver(),
                         ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i], 
-                        colors[0] + "|" + ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i].split(
-                        ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER)[0] + "|1|250");
+                        colors[0] + "|" + "00000000|1|250");
             }
         }
         showAllApps(true);
@@ -2786,21 +2786,19 @@ public final class Launcher extends Activity
     }
 
     void showWorkspace(boolean animated) {
-        if (mOnResumeState == State.NONE){
+        if (mState == State.APPS_CUSTOMIZE){
             // Fade bars back to Launcher-color in 250ms
-            String[] launcherColors = ExtendedPropertiesUtils.getProperty("com.android.launcher" +
-                    ExtendedPropertiesUtils.PARANOID_COLORS_SUFFIX).split(
-                    ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
-            for (int i=ExtendedPropertiesUtils.PARANOID_COLORS_NAVBAR;
-                i <= ExtendedPropertiesUtils.PARANOID_COLORS_STATBAR; i++) {
+            String[] launcherColors = ExtendedPropertiesUtils.mGlobalHook.colors;
+
+            for (int i=0; i < 5; i++) {
                 String setting = Settings.System.getString(getContentResolver(),
                         ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
-                String[] colors = (setting == null || setting.equals("") ?
-                        ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i] :
-                        setting).split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
-                String newColor = launcherColors.length == ExtendedPropertiesUtils.PARANOID_COLORS_COUNT ? 
-                        launcherColors[i] : ExtendedPropertiesUtils.PARANOID_COLORS_DEFAULTS[i].split(
-                        ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER)[0];
+                String[] colors = (setting == null || setting.equals("")  ?
+                    "00000000|00000000|0" : setting).split(
+                    ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+
+                String newColor = launcherColors.length == 5 ? 
+                        launcherColors[i] : "00000000";
                 Settings.System.putString(getContentResolver(),
                         ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i], 
                         colors[0] + "|" + newColor + "|1|250");
