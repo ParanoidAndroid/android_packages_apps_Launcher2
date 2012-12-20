@@ -68,6 +68,7 @@ import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.TextKeyListener;
+import android,util.ColorUtils;
 import android.util.ExtendedPropertiesUtils;
 import android.util.Log;
 import android.view.Display;
@@ -331,16 +332,16 @@ public final class Launcher extends Activity
         String[] launcherColors = ExtendedPropertiesUtils.mGlobalHook.colors;
         for (int i = 0; i < 5; i++) {
             String setting = Settings.System.getString(getContentResolver(),
-                ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
+                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
 
             String[] colors = (setting == null || setting.equals("") ?
-                "00000000|00000000|0" : setting).split(
-                ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+                    ColorUtils.NO_COLOR : setting).split(
+                    ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
 
             Settings.System.putString(getContentResolver(),
-                ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i],
-                colors[0] + "|" + (stockColors ? "00000000" : launcherColors[i]) +
-                "|1|"+String.valueOf(speed));
+                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i],
+                    colors[0] + "|" + (stockColors ? "00000000" : launcherColors[i]) +
+                    "|1|"+String.valueOf(speed));
         }
     }
 
@@ -1291,10 +1292,11 @@ public final class Launcher extends Activity
 
             if (mIsAbsent) {
                 mIsAbsent = false;
-                if (mState == State.WORKSPACE)
+                if (mState == State.WORKSPACE) {
                     fadeColors(500, false);
-                else if (mState == State.APPS_CUSTOMIZE)
+                } else if (mState == State.APPS_CUSTOMIZE) {
                     fadeColors(500, true);
+                }
             }
 
             mAppsCustomizeTabHost.onWindowVisible();
@@ -2807,10 +2809,11 @@ public final class Launcher extends Activity
         }
     }
 
-    void showWorkspace(boolean animated) {        
+    void showWorkspace(boolean animated) {
         mIsAbsent = false;
-        if (mPowerManager.isScreenOn())
+        if (mPowerManager.isScreenOn()) {
             fadeColors(800, false);
+        }
         showWorkspace(animated, null);
     }
 
