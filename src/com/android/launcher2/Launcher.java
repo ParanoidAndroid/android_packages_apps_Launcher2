@@ -68,7 +68,7 @@ import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.TextKeyListener;
-import android,util.ColorUtils;
+import android.util.ColorUtils;
 import android.util.ExtendedPropertiesUtils;
 import android.util.Log;
 import android.view.Display;
