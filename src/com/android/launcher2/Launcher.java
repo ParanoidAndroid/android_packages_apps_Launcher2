@@ -330,18 +330,11 @@ public final class Launcher extends Activity
 
     private void fadeColors(int speed, boolean stockColors) {
         String[] launcherColors = ExtendedPropertiesUtils.mGlobalHook.colors;
-        for (int i = 0; i < 5; i++) {
-            String setting = Settings.System.getString(getContentResolver(),
-                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i]);
-
-            String[] colors = (setting == null || setting.equals("") ?
-                    ColorUtils.NO_COLOR : setting).split(
-                    ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
-
-            Settings.System.putString(getContentResolver(),
-                    ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i],
-                    colors[0] + "|" + (stockColors ? "00000000" : launcherColors[i]) +
-                    "|1|"+String.valueOf(speed));
+        for (int i = 0; i < ExtendedPropertiesUtils.PARANOID_COLORS_COUNT; i++) {
+            String setting = ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i];
+            ColorUtils.ColorSettingInfo colorInfo = ColorUtils.getColorSettingInfo(this, setting);
+            ColorUtils.setColor(this, setting, colorInfo.systemColorString,
+                    (stockColors ? "NULL" : launcherColors[i]), 1, speed);
         }
     }
 
