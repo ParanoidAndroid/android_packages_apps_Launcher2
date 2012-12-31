@@ -329,12 +329,14 @@ public final class Launcher extends Activity
     boolean mIsAbsent = false;
 
     private void fadeColors(int speed, boolean stockColors) {
-        String[] launcherColors = ExtendedPropertiesUtils.mGlobalHook.colors;
-        for (int i = 0; i < ExtendedPropertiesUtils.PARANOID_COLORS_COUNT; i++) {
-            String setting = ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i];
-            ColorUtils.ColorSettingInfo colorInfo = ColorUtils.getColorSettingInfo(this, setting);
-            ColorUtils.setColor(this, setting, colorInfo.systemColorString,
-                    (stockColors ? "NULL" : launcherColors[i]), 1, speed);
+        if (ColorUtils.getPerAppColorState(this)) {
+            String[] launcherColors = ExtendedPropertiesUtils.mGlobalHook.colors;
+            for (int i = 0; i < ExtendedPropertiesUtils.PARANOID_COLORS_COUNT; i++) {
+                String setting = ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i];
+                ColorUtils.ColorSettingInfo colorInfo = ColorUtils.getColorSettingInfo(this, setting);
+                ColorUtils.setColor(this, setting, colorInfo.systemColorString,
+                        (stockColors ? "NULL" : launcherColors[i]), 1, speed);
+            }
         }
     }
 
