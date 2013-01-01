@@ -327,6 +327,7 @@ public final class Launcher extends Activity
     }
 
     boolean mIsAbsent = false;
+    private String[] appDrawerColors = new String[ExtendedPropertiesUtils.PARANOID_COLORS_COUNT];
 
     private void fadeColors(int speed, boolean stockColors) {
         if (ColorUtils.getPerAppColorState(this)) {
@@ -335,7 +336,7 @@ public final class Launcher extends Activity
                 String setting = ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i];
                 ColorUtils.ColorSettingInfo colorInfo = ColorUtils.getColorSettingInfo(this, setting);
                 ColorUtils.setColor(this, setting, colorInfo.systemColorString,
-                        (stockColors ? "NULL" : launcherColors[i]), 1, speed);
+                        (stockColors ? appDrawerColors[i] : launcherColors[i]), 1, speed);
             }
         }
     }
@@ -356,6 +357,14 @@ public final class Launcher extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mIsAbsent = false;
+
+        String[] colors = ExtendedPropertiesUtils.getProperty("com.android.launcher.appdrawer").
+                split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
+        for(int i=0; i < ExtendedPropertiesUtils.PARANOID_COLORS_COUNT; i++) {
+            appDrawerColors[i] = colors.length == ExtendedPropertiesUtils.PARANOID_COLORS_COUNT ?
+                    colors[i].toUpperCase() : "NULL";
+        }
+
         fadeColors(500, false);
 
         if (DEBUG_STRICT_MODE) {
