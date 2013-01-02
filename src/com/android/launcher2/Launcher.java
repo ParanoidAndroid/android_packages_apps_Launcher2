@@ -336,7 +336,9 @@ public final class Launcher extends Activity
                 String setting = ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i];
                 ColorUtils.ColorSettingInfo colorInfo = ColorUtils.getColorSettingInfo(this, setting);
                 ColorUtils.setColor(this, setting, colorInfo.systemColorString,
-                        (stockColors ? appDrawerColors[i] : launcherColors[i]), 1, speed);
+                        (stockColors ? appDrawerColors[i] : (launcherColors[i].isEmpty() ?
+                        colorInfo.currentColorString : launcherColors[i])), (launcherColors[i].isEmpty()
+                        && !stockColors ? 0 : 1), speed);
             }
         }
     }
