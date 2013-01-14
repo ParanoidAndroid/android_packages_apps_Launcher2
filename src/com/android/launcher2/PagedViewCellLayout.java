@@ -360,8 +360,8 @@ public class PagedViewCellLayout extends ViewGroup implements Page {
     }
 
     public void calculateCellCount(int width, int height, int maxCellCountX, int maxCellCountY) {
-        mCellCountX = estimateCellHSpan(width);
-        mCellCountY = estimateCellVSpan(height);
+        mCellCountX = Math.min(maxCellCountX, estimateCellHSpan(width));
+        mCellCountY = Math.min(maxCellCountY, estimateCellVSpan(height));
         requestLayout();
     }
 

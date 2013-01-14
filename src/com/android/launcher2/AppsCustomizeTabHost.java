@@ -147,7 +147,12 @@ public class AppsCustomizeTabHost extends TabHost implements LauncherTransitiona
 
         // Set the width of the tab list to the content width
         if (remeasureTabWidth) {
-            mRelayoutAndMakeVisible.run();
+            int contentWidth = mAppsCustomizePane.getPageContentWidth();
+            if (contentWidth > 0 && mTabs.getLayoutParams().width != contentWidth) {
+                // Set the width and show the tab bar
+                mTabs.getLayoutParams().width = contentWidth;
+                mRelayoutAndMakeVisible.run();
+            }
 
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }

@@ -332,12 +332,8 @@ public class Workspace extends SmoothPagedView
         mCameraDistance = res.getInteger(R.integer.config_cameraDistance);
 
         // if the value is manually specified, use that instead
-        if (a.getInt(R.styleable.Workspace_cellCountX, cellCountX) > 0) {
-            cellCountX = a.getInt(R.styleable.Workspace_cellCountX, cellCountX);
-        }
-        if (a.getInt(R.styleable.Workspace_cellCountY, cellCountY) > 0) {
-            cellCountY = a.getInt(R.styleable.Workspace_cellCountY, cellCountY);
-        }
+        cellCountX = a.getInt(R.styleable.Workspace_cellCountX, cellCountX);
+        cellCountY = a.getInt(R.styleable.Workspace_cellCountY, cellCountY);
         mDefaultPage = a.getInt(R.styleable.Workspace_defaultScreen, 1);
         a.recycle();
 
