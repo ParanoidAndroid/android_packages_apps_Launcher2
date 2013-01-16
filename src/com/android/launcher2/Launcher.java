@@ -55,6 +55,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.hybrid.HybridManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -71,7 +72,6 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.TextKeyListener;
 import android.util.ColorUtils;
-import android.util.ExtendedPropertiesUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.HapticFeedbackConstants;
@@ -337,13 +337,13 @@ public final class Launcher extends Activity
     }
 
     boolean mIsAbsent = false;
-    private String[] appDrawerColors = new String[ExtendedPropertiesUtils.PARANOID_COLORS_COUNT];
+    private String[] appDrawerColors = new String[HybridManager.COLOR_DEF_SIZE];
 
     private void fadeColors(int speed, boolean stockColors) {
         if (ColorUtils.getPerAppColorState(this)) {
-            String[] launcherColors = ExtendedPropertiesUtils.mGlobalHook.colors;
-            for (int i = 0; i < ExtendedPropertiesUtils.PARANOID_COLORS_COUNT; i++) {
-                String setting = ExtendedPropertiesUtils.PARANOID_COLORS_SETTINGS[i];
+            String[] launcherColors = HybridManager.sGlobalHook.getColors();
+            for (int i = 0; i < HybridManager.COLOR_DEF_SIZE; i++) {
+                String setting = HybridManager.COLOR_SETTINGS[i];
                 ColorUtils.ColorSettingInfo colorInfo = ColorUtils.getColorSettingInfo(this, setting);
                 ColorUtils.setColor(this, setting, colorInfo.systemColorString,
                         (stockColors ? appDrawerColors[i] : (launcherColors[i].isEmpty() ?
@@ -374,11 +374,11 @@ public final class Launcher extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         mIsAbsent = false;
 
-        String[] colors = ExtendedPropertiesUtils.getProperty("com.android.launcher.appdrawer").
-                split(ExtendedPropertiesUtils.PARANOID_STRING_DELIMITER);
-        for(int i=0; i < ExtendedPropertiesUtils.PARANOID_COLORS_COUNT; i++) {
-            appDrawerColors[i] = colors.length == ExtendedPropertiesUtils.PARANOID_COLORS_COUNT ?
-                    colors[i].toUpperCase() : "NULL";
+        String[] colors = HybridManager.getProperty(
+                "com.android.launcher.appdrawer").getColors();
+        for(int i=0; i < HybridManager.COLOR_DEF_SIZE; i++) {
+            appDrawerColors[i] = colors.length == HybridManager.COLOR_DEF_SIZE ?
+                    colors[i].toUpperCase() : ColorUtils.NULL_COLOR;
         }
 
         fadeColors(500, false);
