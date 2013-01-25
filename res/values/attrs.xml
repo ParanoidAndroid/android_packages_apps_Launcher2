@@ -50,6 +50,10 @@
         <attr name="cellCountX" format="integer"  />
         <!-- The number of vertical cells in the CellLayout -->
         <attr name="cellCountY" format="integer"  />
+        <!-- The minimum number of horizontal cells in the CellLayout -->
+        <attr name="minCellCountX" format="integer"  />
+        <!-- The minimum number of vertical cells in the CellLayout -->
+        <attr name="minCellCountY" format="integer"  />
     </declare-styleable>
     
     <!-- Hotseat specific attributes. These attributes are used to customize

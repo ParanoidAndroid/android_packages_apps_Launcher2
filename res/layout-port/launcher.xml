@@ -51,6 +51,8 @@
         launcher:defaultScreen="2"
         launcher:cellCountX="@integer/cell_count_x"
         launcher:cellCountY="@integer/cell_count_y"
+        launcher:minCellCountX="@integer/min_cell_count_x"
+        launcher:minCellCountY="@integer/min_cell_count_y"
         launcher:pageSpacing="@dimen/workspace_page_spacing"
         launcher:scrollIndicatorPaddingLeft="@dimen/workspace_divider_padding_left"
         launcher:scrollIndicatorPaddingRight="@dimen/workspace_divider_padding_right">

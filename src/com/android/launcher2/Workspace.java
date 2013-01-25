@@ -338,6 +338,8 @@ public class Workspace extends SmoothPagedView
         if (a.getInt(R.styleable.Workspace_cellCountY, cellCountY) > 0) {
             cellCountY = a.getInt(R.styleable.Workspace_cellCountY, cellCountY);
         }
+        cellCountX = Math.max(a.getInt(R.styleable.Workspace_minCellCountX, cellCountX), cellCountX);
+        cellCountY = Math.max(a.getInt(R.styleable.Workspace_minCellCountY, cellCountY), cellCountY);
         mDefaultPage = a.getInt(R.styleable.Workspace_defaultScreen, 1);
         a.recycle();
 
