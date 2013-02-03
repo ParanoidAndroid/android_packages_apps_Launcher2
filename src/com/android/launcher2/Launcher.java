@@ -98,6 +98,7 @@ import android.widget.Toast;
 import com.android.common.Search;
 import com.android.launcher.R;
 import com.android.launcher2.DropTarget.DragObject;
+import com.android.launcher2.preference.PreferencesProvider;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -130,7 +131,8 @@ public final class Launcher extends Activity
 
     private static final int MENU_GROUP_WALLPAPER = 1;
     private static final int MENU_WALLPAPER_SETTINGS = Menu.FIRST + 1;
-    private static final int MENU_MANAGE_APPS = MENU_WALLPAPER_SETTINGS + 1;
+    private static final int MENU_LAUNCHER_SETTINGS = MENU_WALLPAPER_SETTINGS + 1;
+    private static final int MENU_MANAGE_APPS = MENU_LAUNCHER_SETTINGS + 1;
     private static final int MENU_SYSTEM_SETTINGS = MENU_MANAGE_APPS + 1;
     private static final int MENU_HELP = MENU_SYSTEM_SETTINGS + 1;
 
@@ -145,7 +147,9 @@ public final class Launcher extends Activity
 
     static final String EXTRA_SHORTCUT_DUPLICATE = "duplicate";
 
-    static final int SCREEN_COUNT = 5;
+    static final int MAX_WORKSPACE_SCREEN_COUNT = 7;
+    static final int MAX_HOTSEAT_SCREEN_COUNT = 3;
+    static final int MAX_SCREEN_COUNT = MAX_WORKSPACE_SCREEN_COUNT + MAX_HOTSEAT_SCREEN_COUNT;
     static final int DEFAULT_SCREEN = 2;
 
     private static final String PREFERENCES = "launcher.preferences";
@@ -198,7 +202,7 @@ public final class Launcher extends Activity
     private static final int DISMISS_CLING_DURATION = 250;
 
     private static final Object sLock = new Object();
-    private static int sScreen = DEFAULT_SCREEN;
+//    private static int sScreen = DEFAULT_SCREEN;
 
     // How long to wait before the new-shortcut animation automatically pans the workspace
     private static int NEW_APPS_ANIMATION_INACTIVE_TIMEOUT_SECONDS = 10;
@@ -306,6 +310,12 @@ public final class Launcher extends Activity
     private HideFromAccessibilityHelper mHideFromAccessibilityHelper
         = new HideFromAccessibilityHelper();
 
+    //Preferences
+    private boolean mShowSearchBar;
+    private boolean mHideIconLabels;
+    private boolean mShowDockDivider;
+    private boolean mAutoRotate;
+
     private Runnable mBuildLayersRunnable = new Runnable() {
         public void run() {
             if (mWorkspace != null) {
@@ -394,6 +404,9 @@ public final class Launcher extends Activity
         mDragController = new DragController(this);
         mInflater = getLayoutInflater();
 
+        // Load all preferences
+        PreferencesProvider.load(this);
+
         mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
 
         mAppWidgetManager = AppWidgetManager.getInstance(this);
@@ -404,6 +417,12 @@ public final class Launcher extends Activity
         // this also ensures that any synchronous binding below doesn't re-trigger another
         // LauncherModel load.
         mPaused = false;
+
+        //Preferences
+        mShowSearchBar = PreferencesProvider.getShowSearchBar();
+        mHideIconLabels = PreferencesProvider.getHideIconLabels();
+        mShowDockDivider = PreferencesProvider.getShowDivider();
+        mAutoRotate = PreferencesProvider.getAutoRotate(getResources().getBoolean(R.bool.allow_rotation));
 
         if (PROFILE_STARTUP) {
             android.os.Debug.startMethodTracing(
@@ -606,17 +625,17 @@ public final class Launcher extends Activity
         return !mModel.isLoadingWorkspace();
     }
 
-    static int getScreen() {
-        synchronized (sLock) {
-            return sScreen;
-        }
-    }
-
-    static void setScreen(int screen) {
-        synchronized (sLock) {
-            sScreen = screen;
-        }
-    }
+//    static int getScreen() {
+//        synchronized (sLock) {
+//            return sScreen;
+//        }
+//    }
+//
+//    static void setScreen(int screen) {
+//        synchronized (sLock) {
+//            sScreen = screen;
+//        }
+//    }
 
     /**
      * Returns whether we should delay spring loaded mode -- for shortcuts and widgets that have
@@ -768,6 +787,9 @@ public final class Launcher extends Activity
 
         mPaused = false;
         sPausedFromUserAction = false;
+        if (preferencesChanged()) {
+            android.os.Process.killProcess(android.os.Process.myPid());
+        }
         if (mRestoring || mOnResumeNeedsLoad) {
             mWorkspaceLoading = true;
             mModel.startLoader(true, -1);
@@ -988,6 +1010,15 @@ public final class Launcher extends Activity
         // Get the search/delete bar
         mSearchDropTargetBar = (SearchDropTargetBar) mDragLayer.findViewById(R.id.qsb_bar);
 
+        // Hide the search divider if we are hiding search bar
+        if (!mShowSearchBar && mQsbDivider != null && getCurrentOrientation() == Configuration.ORIENTATION_LANDSCAPE) {
+            mQsbDivider.setVisibility(View.GONE);
+        }
+
+        if (!mShowDockDivider && mDockDivider != null) {
+            mDockDivider.setVisibility(View.GONE);
+        }
+
         // Setup AppsCustomize
         mAppsCustomizeTabHost = (AppsCustomizeTabHost)
                 findViewById(R.id.apps_customize_pane);
@@ -1029,6 +1060,9 @@ public final class Launcher extends Activity
     View createShortcut(int layoutResId, ViewGroup parent, ShortcutInfo info) {
         BubbleTextView favorite = (BubbleTextView) mInflater.inflate(layoutResId, parent, false);
         favorite.applyFromShortcutInfo(info, mIconCache);
+        if (mHideIconLabels) {
+            favorite.setTextVisible(false);
+        }
         favorite.setOnClickListener(this);
         return favorite;
     }
@@ -1658,6 +1692,7 @@ public final class Launcher extends Activity
         Intent manageApps = new Intent(Settings.ACTION_MANAGE_ALL_APPLICATIONS_SETTINGS);
         manageApps.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        Intent launcherSettings = new Intent(Launcher.this, com.android.launcher2.preference.Preferences.class);
         Intent settings = new Intent(android.provider.Settings.ACTION_SETTINGS);
         settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
@@ -1669,6 +1704,9 @@ public final class Launcher extends Activity
         menu.add(MENU_GROUP_WALLPAPER, MENU_WALLPAPER_SETTINGS, 0, R.string.menu_wallpaper)
             .setIcon(android.R.drawable.ic_menu_gallery)
             .setAlphabeticShortcut('W');
+        menu.add(0, MENU_LAUNCHER_SETTINGS, 0, R.string.launcher_settings_title)
+            .setIntent(launcherSettings)
+            .setAlphabeticShortcut('S');
         menu.add(0, MENU_MANAGE_APPS, 0, R.string.menu_manage_apps)
             .setIcon(android.R.drawable.ic_menu_manage)
             .setIntent(manageApps)
@@ -1868,6 +1906,9 @@ public final class Launcher extends Activity
         // Create the view
         FolderIcon newFolder =
             FolderIcon.fromXml(R.layout.folder_icon, this, layout, folderInfo, mIconCache);
+        if (mHideIconLabels) {
+            newFolder.setTextVisible(false);
+        }
         mWorkspace.addInScreen(newFolder, container, screen, cellX, cellY, 1, 1,
                 isWorkspaceLocked());
         return newFolder;
@@ -2331,6 +2372,62 @@ public final class Launcher extends Activity
         folder.animateClosed();
     }
 
+    private void startContextMenu() {
+        final String[] items = new String[] {
+            getResources().getString(R.string.launcher_settings_title),
+            getResources().getString(R.string.pick_wallpaper)
+        };
+        final int[] icons = new int[] {
+            R.drawable.ic_launcher_home,
+            R.drawable.ic_launcher_wallpaper
+        };
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(Launcher.this);
+        builder.setTitle(R.string.actions_title);
+        builder.setAdapter(new android.widget.ArrayAdapter<String>(getApplicationContext(), R.xml.context_menu_item, items) {
+                ViewHolder holder;
+                Drawable icon;
+                class ViewHolder {
+                    ImageView icon;
+                    TextView title;
+                }
+
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    final LayoutInflater inflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    if (convertView == null) {
+                        convertView = inflater.inflate(R.xml.context_menu_item, null);
+                        holder = new ViewHolder();
+                        holder.icon = (ImageView) convertView.findViewById(R.id.icon);
+                        holder.title = (TextView) convertView.findViewById(R.id.title);
+                        convertView.setTag(holder);
+                    } else {
+                        holder = (ViewHolder) convertView.getTag();
+                    }              
+                    holder.title.setText(items[position]);
+                    holder.icon.setImageDrawable(getResources().getDrawable(icons[position]));
+                    return convertView;
+                }
+            }, 
+
+            new android.content.DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(android.content.DialogInterface dialog, int item) {
+                    dialog.dismiss();
+                    switch (item) {
+                        case 0:
+                            Intent launcherSettings = new Intent(Launcher.this, com.android.launcher2.preference.Preferences.class);
+                            Launcher.this.startActivity(launcherSettings);
+                            break;
+                        case 1:
+                            startWallpaper();
+                            break;
+                    }
+                }
+        });
+        android.app.AlertDialog alert = builder.create();
+        alert.show();
+    }
+
     public boolean onLongClick(View v) {
         if (!isDraggingEnabled()) return false;
         if (isWorkspaceLocked()) return false;
@@ -2356,7 +2453,8 @@ public final class Launcher extends Activity
                 // User long pressed on empty space
                 mWorkspace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
                         HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-                startWallpaper();
+                //startWallpaper();
+                startContextMenu();
             } else {
                 if (!(itemUnderLongClick instanceof Folder)) {
                     // User long pressed on an item
@@ -2922,15 +3020,23 @@ public final class Launcher extends Activity
 
     void hideDockDivider() {
         if (mQsbDivider != null && mDockDivider != null) {
-            mQsbDivider.setVisibility(View.INVISIBLE);
-            mDockDivider.setVisibility(View.INVISIBLE);
+            if (mShowSearchBar) {
+                mQsbDivider.setVisibility(View.INVISIBLE);
+            }
+            if (mShowDockDivider) {
+                mDockDivider.setVisibility(View.INVISIBLE);
+            }
         }
     }
 
     void showDockDivider(boolean animated) {
         if (mQsbDivider != null && mDockDivider != null) {
-            mQsbDivider.setVisibility(View.VISIBLE);
-            mDockDivider.setVisibility(View.VISIBLE);
+            if (mShowSearchBar) {
+                mQsbDivider.setVisibility(View.VISIBLE);
+            }
+            if (mShowDockDivider) {
+                mDockDivider.setVisibility(View.VISIBLE);
+            }
             if (mDividerAnimator != null) {
                 mDividerAnimator.cancel();
                 mQsbDivider.setAlpha(1f);
@@ -2939,8 +3045,10 @@ public final class Launcher extends Activity
             }
             if (animated) {
                 mDividerAnimator = LauncherAnimUtils.createAnimatorSet();
-                mDividerAnimator.playTogether(LauncherAnimUtils.ofFloat(mQsbDivider, "alpha", 1f),
-                        LauncherAnimUtils.ofFloat(mDockDivider, "alpha", 1f));
+                if (mShowSearchBar && mShowDockDivider) {
+                    mDividerAnimator.playTogether(LauncherAnimUtils.ofFloat(mQsbDivider, "alpha", 1f),
+                            LauncherAnimUtils.ofFloat(mDockDivider, "alpha", 1f));
+                }
                 int duration = 0;
                 if (mSearchDropTargetBar != null) {
                     duration = mSearchDropTargetBar.getTransitionInDuration();
@@ -3005,6 +3113,10 @@ public final class Launcher extends Activity
         if (!mWorkspace.addExternalItemToScreen(itemInfo, layout)) {
             showOutOfSpaceMessage(isHotseatLayout(layout));
         }
+    }
+
+    public int getCurrentOrientation() {
+        return getResources().getConfiguration().orientation;
     }
 
     /** Maps the current orientation to an index for referencing orientation correct global icons */
@@ -3121,7 +3233,7 @@ public final class Launcher extends Activity
         final SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         ComponentName activityName = searchManager.getGlobalSearchActivity();
-        if (activityName != null) {
+        if (activityName != null && mShowSearchBar) {
             int coi = getCurrentOrientationIndexForGlobalIcons();
             sGlobalSearchIcon[coi] = updateButtonWithIconFromExternalActivity(
                     R.id.search_button, activityName, R.drawable.ic_home_search_normal_holo,
@@ -3318,7 +3430,7 @@ public final class Launcher extends Activity
         if (mWorkspace != null) {
             return mWorkspace.getCurrentPage();
         } else {
-            return SCREEN_COUNT / 2;
+            return DEFAULT_SCREEN;
         }
     }
 
@@ -3396,6 +3508,9 @@ public final class Launcher extends Activity
                     FolderIcon newFolder = FolderIcon.fromXml(R.layout.folder_icon, this,
                             (ViewGroup) workspace.getChildAt(workspace.getCurrentPage()),
                             (FolderInfo) item, mIconCache);
+                    if (!mHideIconLabels) {
+                        newFolder.setTextVisible(false);
+                    }
                     workspace.addInScreen(newFolder, item.container, item.screen, item.cellX,
                             item.cellY, 1, 1, false);
                     break;
@@ -3718,13 +3833,13 @@ public final class Launcher extends Activity
         return enableRotation;
     }
     public void lockScreenOrientation() {
-        if (isRotationEnabled()) {
+        if (mAutoRotate) {
             setRequestedOrientation(mapConfigurationOriActivityInfoOri(getResources()
                     .getConfiguration().orientation));
         }
     }
     public void unlockScreenOrientation(boolean immediate) {
-        if (isRotationEnabled()) {
+        if (mAutoRotate) {
             if (immediate) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             } else {
@@ -3885,6 +4000,18 @@ public final class Launcher extends Activity
     public void dismissFolderCling(View v) {
         Cling cling = (Cling) findViewById(R.id.folder_cling);
         dismissCling(cling, Cling.FOLDER_CLING_DISMISSED_KEY, DISMISS_CLING_DURATION);
+    }
+
+    public boolean preferencesChanged() {
+        SharedPreferences prefs =
+            getSharedPreferences(PreferencesProvider.PREFERENCES_KEY, Context.MODE_PRIVATE);
+        boolean preferencesChanged = prefs.getBoolean(PreferencesProvider.PREFERENCES_CHANGED, false);
+        if (preferencesChanged) {
+            SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean(PreferencesProvider.PREFERENCES_CHANGED, false);
+                    editor.commit();
+        }
+        return preferencesChanged;
     }
 
     /**

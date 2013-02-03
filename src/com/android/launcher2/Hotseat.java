@@ -27,6 +27,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.android.launcher.R;
+import com.android.launcher2.preference.PreferencesProvider;
 
 public class Hotseat extends FrameLayout {
     @SuppressWarnings("unused")
@@ -57,8 +58,9 @@ public class Hotseat extends FrameLayout {
                 R.styleable.Hotseat, defStyle, 0);
         Resources r = context.getResources();
         mCellCountX = a.getInt(R.styleable.Hotseat_cellCountX, -1);
+        mCellCountX = PreferencesProvider.getNumberIcons(mCellCountX);
         mCellCountY = a.getInt(R.styleable.Hotseat_cellCountY, -1);
-        mAllAppsButtonRank = r.getInteger(R.integer.hotseat_all_apps_index);
+        mAllAppsButtonRank = mCellCountX / 2;
         mTransposeLayoutWithOrientation = 
                 r.getBoolean(R.bool.hotseat_transpose_layout_with_orientation);
         mIsLandscape = context.getResources().getConfiguration().orientation ==

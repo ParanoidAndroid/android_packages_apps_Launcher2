@@ -1,6 +1,6 @@
 <resources>
     <bool name="config_largeHeap">false</bool>
-    <bool name="is_large_screen">true</bool>
+    <bool name="is_large_screen">false</bool>
     <bool name="allow_rotation">false</bool>
 
 <!-- DragController -->
@@ -75,11 +75,8 @@
     <integer name="folder_max_count_y">4</integer>
     <integer name="folder_max_num_items">16</integer>
 
-    <integer name="cell_count_x">-1</integer>
-    <integer name="cell_count_y">-1</integer>
-
-    <integer name="min_cell_count_x">6</integer>
-    <integer name="min_cell_count_y">4</integer>
+    <integer name="cell_count_x">6</integer>
+    <integer name="cell_count_y">4</integer>
 
     <!-- Whether or not to use custom clings if a custom workspace layout is passed in -->
     <bool name="config_useCustomClings">false</bool>
