@@ -1329,9 +1329,11 @@ public class LauncherModel extends BroadcastReceiver {
                                     info.screen = c.getInt(screenIndex);
                                     info.cellX = c.getInt(cellXIndex);
                                     info.cellY = c.getInt(cellYIndex);
-
                                     // check & update map of what's occupied
-                                    if (!checkItemPlacement(occupied, info)) {
+                                    if (container == LauncherSettings.Favorites.CONTAINER_HOTSEAT && ((int)(sHotseatCellCount / 2)) == info.cellX) {
+                                        break;
+                                    }
+                                    if (container != LauncherSettings.Favorites.CONTAINER_HOTSEAT && !checkItemPlacement(occupied, info)) {
                                         break;
                                     }
 
