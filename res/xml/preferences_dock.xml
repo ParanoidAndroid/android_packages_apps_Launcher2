@@ -22,7 +22,7 @@
         android:title="@string/preferences_interface_dock_icons_title"
         android:summary="@string/preferences_interface_dock_icons_summary"
         android:defaultValue="@integer/hotseat_cell_count"
-        launcher:max="@integer/hotseat_cell_count"
+        launcher:max="9"
         launcher:min="3" />
     <CheckBoxPreference android:key="ui_dock_divider"
         android:title="@string/preferences_interface_dock_divider_title"
