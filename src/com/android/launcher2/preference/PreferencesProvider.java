@@ -36,22 +36,17 @@ public final class PreferencesProvider {
     }
 
     public static int getInt(String key, int def) {
-        return sKeyValues.containsKey(key)
-                && sKeyValues.get(key) instanceof Integer ? (Integer) sKeyValues
-                .get(key)
-                : def;
+        return sKeyValues.containsKey(key) && sKeyValues.get(key) instanceof Integer ? (Integer) sKeyValues
+                .get(key) : def;
     }
 
     public static boolean getBoolean(String key, boolean def) {
-        return sKeyValues.containsKey(key)
-                && sKeyValues.get(key) instanceof Boolean ? (Boolean) sKeyValues
-                .get(key)
-                : def;
+        return sKeyValues.containsKey(key) && sKeyValues.get(key) instanceof Boolean ? (Boolean) sKeyValues
+                .get(key) : def;
     }
 
     public static String getString(String key, String def) {
-        return sKeyValues.containsKey(key)
-                && sKeyValues.get(key) instanceof String ? (String) sKeyValues
+        return sKeyValues.containsKey(key) && sKeyValues.get(key) instanceof String ? (String) sKeyValues
                 .get(key) : def;
     }
 
@@ -85,8 +80,7 @@ public final class PreferencesProvider {
     }
 
     public static int getCellCountX(int def) {
-        String[] values = getString("ui_homescreen_grid", "0|" + def).split(
-                "\\|");
+        String[] values = getString("ui_homescreen_grid", "0|" + def).split("\\|");
         try {
             return Integer.parseInt(values[1]);
         } catch (NumberFormatException e) {
@@ -95,8 +89,7 @@ public final class PreferencesProvider {
     }
 
     public static int getCellCountY(int def) {
-        String[] values = getString("ui_homescreen_grid", def + "|0").split(
-                "\\|");
+        String[] values = getString("ui_homescreen_grid", def + "|0").split("\\|");
         try {
             return Integer.parseInt(values[0]);
         } catch (NumberFormatException e) {
@@ -125,8 +118,7 @@ public final class PreferencesProvider {
     }
 
     public static int getHomescreenScrollingIndicatorPosition() {
-        return Integer.parseInt(getString("ui_homescreen_indicator_position",
-                "0"));
+        return Integer.parseInt(getString("ui_homescreen_indicator_position", "0"));
     }
 
     public static boolean getJoinWidgetsApps() {
@@ -155,6 +147,10 @@ public final class PreferencesProvider {
 
     public static int getNumberIcons(int def) {
         return getInt("ui_dock_icons", def);
+    }
+
+    public static int getIconScale(int def) {
+        return getInt("ui_dock_icon_scale", def);
     }
 
     public static boolean getShowDivider() {
