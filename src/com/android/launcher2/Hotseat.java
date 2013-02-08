@@ -60,6 +60,7 @@ public class Hotseat extends FrameLayout {
         mCellCountX = a.getInt(R.styleable.Hotseat_cellCountX, -1);
         mCellCountX = PreferencesProvider.getNumberIcons(mCellCountX);
         mCellCountY = a.getInt(R.styleable.Hotseat_cellCountY, -1);
+        mCellCountY = PreferencesProvider.getNumberIconsVertical(mCellCountY);
         mAllAppsButtonRank = mCellCountX / 2;
         mTransposeLayoutWithOrientation = r
                 .getBoolean(R.bool.hotseat_transpose_layout_with_orientation);
@@ -110,7 +111,11 @@ public class Hotseat extends FrameLayout {
         if (mCellCountY < 0)
             mCellCountY = LauncherModel.getCellCountY();
         mContent = (CellLayout) findViewById(R.id.layout);
-        mContent.setGridSize(mCellCountX, mCellCountY);
+        if (hasVerticalHotseat()) {
+            mContent.setGridSize(1, mCellCountY);
+        } else {
+            mContent.setGridSize(mCellCountX, 1);
+        }
         mContent.setIsHotseat(true);
 
         resetLayout();

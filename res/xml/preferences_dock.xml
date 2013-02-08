@@ -24,6 +24,12 @@
         android:defaultValue="@integer/hotseat_cell_count"
         launcher:max="9"
         launcher:min="3" />
+    <com.android.launcher2.preference.NumberPickerPreference android:key="ui_dock_icons_vertical"
+        android:title="@string/preferences_interface_dock_icons_vertical_title"
+        android:summary="@string/preferences_interface_dock_icons_vertical_summary"
+        android:defaultValue="@integer/hotseat_cell_count"
+        launcher:max="9"
+        launcher:min="3" />
     <com.android.launcher2.preference.SeekBarDialogPreference android:key="ui_dock_icon_scale"
         android:title="@string/preferences_interface_dock_icon_scale_title"
         android:summary="@string/preferences_interface_dock_icon_scale_summary"

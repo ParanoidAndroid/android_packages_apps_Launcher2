@@ -149,6 +149,10 @@ public final class PreferencesProvider {
         return getInt("ui_dock_icons", def);
     }
 
+    public static int getNumberIconsVertical(int def) {
+        return getInt("ui_dock_icons_vertical", def);
+    }
+
     public static int getIconScale(int def) {
         return getInt("ui_dock_icon_scale", def);
     }

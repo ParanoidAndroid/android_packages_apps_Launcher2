@@ -333,8 +333,10 @@ s -->
     <string name="preferences_interface_dock_pages_summary">Number of pages in the dock</string>
     <string name="preferences_interface_dock_default_page_title">Default page</string>
     <string name="preferences_interface_dock_default_page_summary">Choose the default page</string>
-    <string name="preferences_interface_dock_icons_title">Icons</string>
-    <string name="preferences_interface_dock_icons_summary">Number of icons/columns in the dock</string>
+    <string name="preferences_interface_dock_icons_title">Icons horizontal</string>
+    <string name="preferences_interface_dock_icons_summary">Number of icons in the dock in horizontal</string>
+    <string name="preferences_interface_dock_icons_vertical_title">Icons vertical</string>
+    <string name="preferences_interface_dock_icons_vertical_summary">Number of icons in the dock in vertical</string>
     <string name="preferences_interface_dock_icon_scale_title">Icon scale</string>
     <string name="preferences_interface_dock_icon_scale_summary">Scale of icons in the dock</string>
     <string name="preferences_interface_dock_divider_title">Show dock divider</string>
