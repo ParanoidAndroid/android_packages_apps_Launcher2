@@ -61,10 +61,11 @@ public class Hotseat extends FrameLayout {
         mCellCountX = PreferencesProvider.getNumberIcons(mCellCountX);
         mCellCountY = a.getInt(R.styleable.Hotseat_cellCountY, -1);
         mCellCountY = PreferencesProvider.getNumberIconsVertical(mCellCountY);
-        mAllAppsButtonRank = mCellCountX / 2;
         mTransposeLayoutWithOrientation = r
                 .getBoolean(R.bool.hotseat_transpose_layout_with_orientation);
         mIsLandscape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        mAllAppsButtonRank = hasVerticalHotseat() ? mCellCountY / 2 : mCellCountX / 2;
+        LauncherModel.updateHotseatLayoutCells(hasVerticalHotseat() ? mCellCountY : mCellCountX);
     }
 
     public void setup(Launcher launcher) {
