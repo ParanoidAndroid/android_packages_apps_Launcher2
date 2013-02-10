@@ -662,15 +662,15 @@ public class LauncherModel extends BroadcastReceiver {
                 | (localCellY & 0xFF);
     }
 
-    static int getCellCountX() {
+    public static int getCellCountX() {
         return sWorkspaceCellCountX;
     }
 
-    static int getCellCountY() {
+    public static int getCellCountY() {
         return sWorkspaceCellCountY;
     }
 
-    static int getHotseatCellCount() {
+    public static int getHotseatCellCount() {
         return sHotseatCellCount;
     }
 

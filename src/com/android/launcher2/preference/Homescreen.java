@@ -21,13 +21,24 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 
 import com.android.launcher.R;
+import com.android.launcher2.LauncherModel;
 
 public class Homescreen extends LauncherPreferenceActivity {
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences_homescreen);
+        
+        DoubleNumberPickerPreference mGrid = (DoubleNumberPickerPreference)findPreference("ui_homescreen_grid");
+        mGrid.setDefault1(LauncherModel.getCellCountX());
+        mGrid.setDefault1(LauncherModel.getCellCountY());
+        
+        NumberPickerPreference mScreens = (NumberPickerPreference)findPreference("ui_homescreen_screens");
+        mScreens.setDefaultValue(PreferencesProvider.getNumberHomescreens());
+        
+        NumberPickerPreference mDefaultScreen = (NumberPickerPreference)findPreference("ui_homescreen_default_screen");
+        mDefaultScreen.setDefaultValue(PreferencesProvider.getDefaultHomescreen(3));
 
         findPreference("ui_homescreen_indicator_position")
                 .setOnPreferenceChangeListener(
