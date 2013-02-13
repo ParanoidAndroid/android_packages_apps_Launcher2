@@ -104,6 +104,7 @@ import com.android.launcher2.DropTarget.DragObject;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -363,6 +364,8 @@ public final class Launcher extends Activity
         } catch (java.io.IOException e) {
             return true;
         }
+	}
+
     private static boolean isPropertyEnabled(String propertyName) {
         return Log.isLoggable(propertyName, Log.VERBOSE);
     }
