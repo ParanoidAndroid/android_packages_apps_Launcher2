@@ -50,8 +50,10 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -153,8 +155,10 @@ public final class Launcher extends Activity
     static final int DEFAULT_SCREEN = 2;
 
     private static final String PREFERENCES = "launcher.preferences";
-    static final String FORCE_ENABLE_ROTATION_PROPERTY = "debug.force_enable_rotation";
-    static final String DUMP_STATE_PROPERTY = "debug.dumpstate";
+    // To turn on these properties, type
+    // adb shell setprop log.tag.PROPERTY_NAME [VERBOSE | SUPPRESS]
+    static final String FORCE_ENABLE_ROTATION_PROPERTY = "launcher_force_rotate";
+    static final String DUMP_STATE_PROPERTY = "launcher_dump_state";
 
     // The Intent extra that defines whether to ignore the launch animation
     static final String INTENT_EXTRA_IGNORE_LAUNCH_ANIMATION =
@@ -216,6 +220,7 @@ public final class Launcher extends Activity
     private Workspace mWorkspace;
     private View mQsbDivider;
     private View mDockDivider;
+    private View mLauncherView;
     private DragLayer mDragLayer;
     private DragController mDragController;
 
@@ -288,6 +293,9 @@ public final class Launcher extends Activity
     private static Drawable.ConstantState[] sVoiceSearchIcon = new Drawable.ConstantState[2];
     private static Drawable.ConstantState[] sAppMarketIcon = new Drawable.ConstantState[2];
 
+    private Drawable mWorkspaceBackgroundDrawable;
+    private Drawable mBlackBackgroundDrawable;
+
     private final ArrayList<Integer> mSynchronouslyBoundPages = new ArrayList<Integer>();
 
     static final ArrayList<String> sDumpLogs = new ArrayList<String>();
@@ -327,6 +335,8 @@ public final class Launcher extends Activity
     private static ArrayList<PendingAddArguments> sPendingAddList
             = new ArrayList<PendingAddArguments>();
 
+    private static boolean sForceEnableRotation = isPropertyEnabled(FORCE_ENABLE_ROTATION_PROPERTY);
+
     private static class PendingAddArguments {
         int requestCode;
         Intent intent;
@@ -364,6 +374,10 @@ public final class Launcher extends Activity
         } catch (java.io.IOException e) {
             return true;
         }
+	}
+
+    private static boolean isPropertyEnabled(String propertyName) {
+        return Log.isLoggable(propertyName, Log.VERBOSE);
     }
 
     @Override
@@ -782,6 +796,9 @@ public final class Launcher extends Activity
         }
         mOnResumeState = State.NONE;
 
+        // Background was set to gradient in onPause(), restore to black if in all apps.
+        setWorkspaceBackground(mState == State.WORKSPACE);
+
         // Process any items that were added while Launcher was away
         InstallShortcutReceiver.flushInstallQueue(this);
 
@@ -987,10 +1004,15 @@ public final class Launcher extends Activity
     private void setupViews() {
         final DragController dragController = mDragController;
 
+        mLauncherView = findViewById(R.id.launcher);
         mDragLayer = (DragLayer) findViewById(R.id.drag_layer);
         mWorkspace = (Workspace) mDragLayer.findViewById(R.id.workspace);
-        mQsbDivider = (ImageView) findViewById(R.id.qsb_divider);
-        mDockDivider = (ImageView) findViewById(R.id.dock_divider);
+        mQsbDivider = findViewById(R.id.qsb_divider);
+        mDockDivider = findViewById(R.id.dock_divider);
+
+        mLauncherView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        mWorkspaceBackgroundDrawable = getResources().getDrawable(R.drawable.workspace_bg);
+        mBlackBackgroundDrawable = new ColorDrawable(Color.BLACK);
 
         // Setup the drag layer
         mDragLayer.setup(this, dragController);
@@ -1020,12 +1042,11 @@ public final class Launcher extends Activity
         }
 
         // Setup AppsCustomize
-        mAppsCustomizeTabHost = (AppsCustomizeTabHost)
-                findViewById(R.id.apps_customize_pane);
+        mAppsCustomizeTabHost = (AppsCustomizeTabHost) findViewById(R.id.apps_customize_pane);
         mAppsCustomizeContent = (AppsCustomizePagedView)
                 mAppsCustomizeTabHost.findViewById(R.id.apps_customize_pane_content);
         mAppsCustomizeContent.setup(this, dragController);
-        
+
         // Setup the drag controller (drop targets have to be added in reverse order in priority)
         dragController.setDragScoller(mWorkspace);
         dragController.setScrollView(mDragLayer);
@@ -1471,6 +1492,10 @@ public final class Launcher extends Activity
 
             Runnable processIntent = new Runnable() {
                 public void run() {
+                    if (mWorkspace == null) {
+                        // Can be cases where mWorkspace is null, this prevents a NPE
+                        return;
+                    }
                     Folder openFolder = mWorkspace.getOpenFolder();
                     // In all these cases, only animate if we're already on home
                     mWorkspace.exitWidgetResizeMode();
@@ -1954,7 +1979,7 @@ public final class Launcher extends Activity
                 case KeyEvent.KEYCODE_HOME:
                     return true;
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    if (doesFileExist(DUMP_STATE_PROPERTY)) {
+                    if (isPropertyEnabled(DUMP_STATE_PROPERTY)) {
                         dumpState();
                         return true;
                     }
@@ -2378,8 +2403,8 @@ public final class Launcher extends Activity
             getResources().getString(R.string.pick_wallpaper)
         };
         final int[] icons = new int[] {
-            R.drawable.ic_launcher_home,
-            R.drawable.ic_launcher_wallpaper
+            R.mipmap.ic_launcher_home,
+            R.mipmap.ic_launcher_wallpaper
         };
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(Launcher.this);
         builder.setTitle(R.string.actions_title);
@@ -2496,10 +2521,12 @@ public final class Launcher extends Activity
     }
 
     // Now a part of LauncherModel.Callbacks. Used to reorder loading steps.
+    @Override
     public boolean isAllAppsVisible() {
         return (mState == State.APPS_CUSTOMIZE) || (mOnResumeState == State.APPS_CUSTOMIZE);
     }
 
+    @Override
     public boolean isAllAppsButtonRank(int rank) {
         return mHotseat.isAllAppsButtonRank(rank);
     }
@@ -2507,7 +2534,6 @@ public final class Launcher extends Activity
     /**
      * Helper method for the cameraZoomIn/cameraZoomOut animations
      * @param view The view being animated
-     * @param state The state that we are moving in or out of (eg. APPS_CUSTOMIZE)
      * @param scaleFactor The scale factor used for the zoom
      */
     private void setPivotsForZoom(View view, float scaleFactor) {
@@ -2525,6 +2551,11 @@ public final class Launcher extends Activity
         }
     }
 
+    private void setWorkspaceBackground(boolean workspace) {
+        mLauncherView.setBackground(workspace ?
+                mWorkspaceBackgroundDrawable : mBlackBackgroundDrawable);
+    }
+
     void updateWallpaperVisibility(boolean visible) {
         int wpflags = visible ? WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER : 0;
         int curflags = getWindow().getAttributes().flags
@@ -2532,6 +2563,7 @@ public final class Launcher extends Activity
         if (wpflags != curflags) {
             getWindow().setFlags(wpflags, WindowManager.LayoutParams.FLAG_SHOW_WALLPAPER);
         }
+        setWorkspaceBackground(visible);
     }
 
     private void dispatchOnLauncherTransitionPrepare(View v, boolean animated, boolean toWorkspace) {
@@ -3827,8 +3859,7 @@ public final class Launcher extends Activity
     }
 
     public boolean isRotationEnabled() {
-        boolean forceEnableRotation = doesFileExist(FORCE_ENABLE_ROTATION_PROPERTY);
-        boolean enableRotation = forceEnableRotation ||
+        boolean enableRotation = sForceEnableRotation ||
                 getResources().getBoolean(R.bool.allow_rotation);
         return enableRotation;
     }
@@ -3892,7 +3923,9 @@ public final class Launcher extends Activity
     }
 
     private void dismissCling(final Cling cling, final String flag, int duration) {
-        if (cling != null && cling.getVisibility() == View.VISIBLE) {
+        // To catch cases where siblings of top-level views are made invisible, just check whether
+        // the cling is directly set to GONE before dismissing it.
+        if (cling != null && cling.getVisibility() != View.GONE) {
             ObjectAnimator anim = LauncherAnimUtils.ofFloat(cling, "alpha", 0f);
             anim.setDuration(duration);
             anim.addListener(new AnimatorListenerAdapter() {
