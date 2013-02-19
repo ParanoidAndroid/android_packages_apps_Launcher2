@@ -42,17 +42,22 @@
     <dimen name="workspace_top_padding">@dimen/workspace_top_padding_land</dimen>
     <dimen name="workspace_bottom_padding">@dimen/workspace_bottom_padding_land</dimen>
 
+    <dimen name="workspace_left_padding_qsb_hidden">@dimen/workspace_left_padding_land_qsb_hidden</dimen>
+    <dimen name="workspace_right_padding_hotseat_hidden">@dimen/workspace_right_padding_land_hotseat_hidden</dimen>
+    <dimen name="workspace_top_padding_qsb_hidden">@dimen/workspace_top_padding_land_qsb_hidden</dimen>
+    <dimen name="workspace_bottom_padding_hotseat_hidden">@dimen/workspace_bottom_padding_land_hotseat_hidden</dimen>
+
     <dimen name="app_icon_padding_top">6dp</dimen>
 
     <!-- height of the bottom row of controls -->
-    <dimen name="button_bar_height">68dip</dimen>
+    <!--dimen name="button_bar_height">68dip</dimen-->
     <!-- Because portal animations go beyond the bounds of an icon, we need
          to make the dock layout slightly larger than the button_bar_height -->
     <dimen name="button_bar_height_top_padding">8dp</dimen>
     <dimen name="button_bar_height_bottom_padding">0dp</dimen>
     <dimen name="button_bar_width_left_padding">0dp</dimen>
     <dimen name="button_bar_width_right_padding">0dp</dimen>
-    <dimen name="button_bar_height_plus_padding">76dp</dimen>
+    <!--dimen name="button_bar_height_plus_padding">76dp</dimen-->
 
 <!-- AppsCustomize -->
     <dimen name="apps_customize_cell_width">80dp</dimen>

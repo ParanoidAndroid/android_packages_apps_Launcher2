@@ -16,6 +16,13 @@
 
 package com.android.launcher2;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Stack;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -50,13 +57,6 @@ import android.view.animation.LayoutAnimationController;
 
 import com.android.launcher.R;
 import com.android.launcher2.FolderIcon.FolderRingAnimator;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Stack;
 
 public class CellLayout extends ViewGroup {
     static final String TAG = "CellLayout";
@@ -137,6 +137,8 @@ public class CellLayout extends ViewGroup {
 
     private TimeInterpolator mEaseOutInterpolator;
     private ShortcutAndWidgetContainer mShortcutsAndWidgets;
+
+    private float mChildrenScale = 1f;
 
     private boolean mIsHotseat = false;
     private float mHotseatScale = 1f;
@@ -320,8 +322,12 @@ public class CellLayout extends ViewGroup {
         mShortcutsAndWidgets.buildLayer();
     }
 
+    public void setChildrenScale(float childrenScale) {
+        mChildrenScale = childrenScale;
+    }
+
     public float getChildrenScale() {
-        return mIsHotseat ? mHotseatScale : 1.0f;
+        return mChildrenScale;
     }
 
     public void setGridSize(int x, int y) {
@@ -887,6 +893,11 @@ public class CellLayout extends ViewGroup {
         return distance;
     }
 
+    void setCellGaps(int widthGap, int heightGap) {
+        mWidthGap = mOriginalWidthGap = widthGap;
+        mHeightGap = mOriginalHeightGap = heightGap;
+    }
+
     int getCellWidth() {
         return mCellWidth;
     }
@@ -977,18 +988,13 @@ public class CellLayout extends ViewGroup {
         int numWidthGaps = mCountX - 1;
         int numHeightGaps = mCountY - 1;
 
-        if (mOriginalWidthGap < 0 || mOriginalHeightGap < 0) {
-            int hSpace = widthSpecSize - getPaddingLeft() - getPaddingRight();
-            int vSpace = heightSpecSize - getPaddingTop() - getPaddingBottom();
-            int hFreeSpace = hSpace - (mCountX * mCellWidth);
-            int vFreeSpace = vSpace - (mCountY * mCellHeight);
-            mWidthGap = Math.min(mMaxGap, numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0);
-            mHeightGap = Math.min(mMaxGap,numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0);
-            mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap);
-        } else {
-            mWidthGap = mOriginalWidthGap;
-            mHeightGap = mOriginalHeightGap;
-        }
+        int hSpace = widthSpecSize - getPaddingLeft() - getPaddingRight();
+        int vSpace = heightSpecSize - getPaddingTop() - getPaddingBottom();
+        int hFreeSpace = hSpace - (mCountX * mCellWidth);
+        int vFreeSpace = vSpace - (mCountY * mCellHeight);
+        mWidthGap = numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0;
+        mHeightGap = numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0;
+        mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap);
 
         // Initial values correspond to widthSpecMode == MeasureSpec.EXACTLY
         int newWidth = widthSpecSize;

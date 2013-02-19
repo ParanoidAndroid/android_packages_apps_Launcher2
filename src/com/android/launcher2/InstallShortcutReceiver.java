@@ -25,6 +25,7 @@ import android.content.pm.PackageManager;
 import android.widget.Toast;
 
 import com.android.launcher.R;
+import com.android.launcher2.preference.PreferencesProvider;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -136,10 +137,12 @@ public class InstallShortcutReceiver extends BroadcastReceiver {
 
             // Try adding to the workspace screens incrementally, starting at the default or center
             // screen and alternating between +1, -1, +2, -2, etc. (using ~ ceil(i/2f)*(-1)^(i-1))
-            final int screen = Launcher.DEFAULT_SCREEN;
-            for (int i = 0; i < (2 * Launcher.SCREEN_COUNT) + 1 && !found; ++i) {
+            final int screenCount = PreferencesProvider.getNumberHomescreens();
+            final int screenDefault = PreferencesProvider.getDefaultHomescreen(screenCount / 2);
+            final int screen = (screenDefault >= screenCount) ? screenCount / 2 : screenDefault;
+            for (int i = 0; i < (2 * screenCount) + 1 && !found; ++i) {
                 int si = screen + (int) ((i / 2f) + 0.5f) * ((i % 2 == 1) ? 1 : -1);
-                if (0 <= si && si < Launcher.SCREEN_COUNT) {
+                if (0 <= si && si < screenCount) {
                     found = installShortcut(context, data, items, name, intent, si, exists, sp,
                             result);
                 }

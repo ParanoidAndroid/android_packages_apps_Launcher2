@@ -28,7 +28,7 @@
              with the text in the tabs in AppsCustomizeTabHost. -->
         <FrameLayout
             android:id="@+id/tabs_container"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/apps_customize_tab_bar_height"
             android:layout_marginTop="@dimen/apps_customize_tab_bar_margin_top"
             android:layout_gravity="center_horizontal">
@@ -78,7 +78,14 @@
                 android:visibility="gone" />
 
             <include
-                android:id="@+id/paged_view_indicator"
+                android:id="@+id/paged_view_indicator_top"
+                layout="@layout/scroll_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top" />
+
+            <include
+                android:id="@+id/paged_view_indicator_bottom"
                 layout="@layout/scroll_indicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
