@@ -1414,7 +1414,13 @@ public class LauncherModel extends BroadcastReceiver {
                                     folderInfo.cellY = c.getInt(cellYIndex);
 
                                     // check & update map of what's occupied
-                                    if (!checkItemPlacement(occupied, folderInfo)) {
+                                    if (container == LauncherSettings.Favorites.CONTAINER_HOTSEAT
+                                            && sHotseatCellCount > 0
+                                            && ((int) (sHotseatCellCount / 2)) == folderInfo.cellX) {
+                                        break;
+                                    }
+                                    if (container != LauncherSettings.Favorites.CONTAINER_HOTSEAT
+                                            && !checkItemPlacement(occupied, folderInfo)) {
                                         break;
                                     }
                                     switch (container) {
