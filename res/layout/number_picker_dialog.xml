@@ -13,15 +13,16 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
 
-<!-- The workspace contains 5 screens of cells -->
+    <NumberPicker
+        android:id="@+id/number_picker"
+        android:layout_centerInParent="true"
+        android:layout_width="100dip"
+        android:layout_height="match_parent" />
 
-<com.android.launcher2.Workspace
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:launcher="http://schemas.android.com/apk/res/com.android.launcher"
-    android:paddingLeft="@dimen/workspace_left_padding"
-    android:paddingRight="@dimen/workspace_right_padding"
-    android:paddingTop="@dimen/workspace_top_padding"
-    android:paddingBottom="@dimen/workspace_bottom_padding"
-    launcher:pageSpacing="@dimen/workspace_page_spacing">
-</com.android.launcher2.Workspace>
+</LinearLayout>

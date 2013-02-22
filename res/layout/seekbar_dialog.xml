@@ -14,20 +14,23 @@
      limitations under the License.
 -->
 
-<com.android.launcher2.CellLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:launcher="http://schemas.android.com/apk/res/com.android.launcher"
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/cell_layout_left_padding"
-    android:paddingRight="@dimen/cell_layout_right_padding"
-    android:paddingTop="@dimen/cell_layout_top_padding"
-    android:paddingBottom="@dimen/cell_layout_bottom_padding"
-    android:hapticFeedbackEnabled="false"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
 
-    launcher:cellWidth="@dimen/workspace_cell_width"
-    launcher:cellHeight="@dimen/workspace_cell_height"
-    launcher:widthGap="@dimen/workspace_width_gap"
-    launcher:heightGap="@dimen/workspace_height_gap"
-    launcher:maxGap="@dimen/workspace_max_gap" />
+    <TextView android:id="@+id/value"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dip"
+        android:textAppearance="?android:textAppearanceLarge" />
+
+    <SeekBar android:id="@+id/seekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dip"
+        android:paddingTop="5dip" />
+
+</LinearLayout>
