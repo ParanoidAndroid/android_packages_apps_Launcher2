@@ -32,7 +32,7 @@ public class Homescreen extends LauncherPreferenceActivity {
         
         DoubleNumberPickerPreference mGrid = (DoubleNumberPickerPreference)findPreference("ui_homescreen_grid");
         mGrid.setDefault1(LauncherModel.getCellCountX());
-        mGrid.setDefault1(LauncherModel.getCellCountY());
+        mGrid.setDefault2(LauncherModel.getCellCountY());
         
         NumberPickerPreference mScreens = (NumberPickerPreference)findPreference("ui_homescreen_screens");
         mScreens.setDefaultValue(PreferencesProvider.getNumberHomescreens());
