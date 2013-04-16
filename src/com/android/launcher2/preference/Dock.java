@@ -19,12 +19,27 @@ package com.android.launcher2.preference;
 import android.os.Bundle;
 
 import com.android.launcher.R;
+import com.android.launcher2.LauncherModel;
 
 public class Dock extends LauncherPreferenceActivity {
+
+    private NumberPickerPreference mIconsHorizontal;
+    private NumberPickerPreference mIconsVertical;
+    private SeekBarDialogPreference mPercent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences_dock);
+
+        mIconsHorizontal = (NumberPickerPreference)findPreference("ui_dock_icons");
+        mIconsVertical = (NumberPickerPreference)findPreference("ui_dock_icons_vertical");
+        mIconsHorizontal.setDefaultValue(LauncherModel.getHotseatCellCountX());
+        mIconsVertical.setDefaultValue(LauncherModel.getHotseatCellCountY());
+
+        mPercent = (SeekBarDialogPreference)findPreference("ui_dock_icon_scale");
+        int scale = PreferencesProvider.getIconScale(getResources().getInteger(
+                R.integer.hotseat_item_scale_percentage));
+        mPercent.setDefaultValue(scale);
     }
 }

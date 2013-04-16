@@ -93,4 +93,8 @@ public class NumberPickerPreference extends DialogPreference {
         }
     }
 
+    @Override
+    public void setDefaultValue(Object defaultValue) {
+        mDefault = (Integer)defaultValue;
+    }
 }

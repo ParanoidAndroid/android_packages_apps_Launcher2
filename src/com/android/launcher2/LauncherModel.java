@@ -141,6 +141,8 @@ public class LauncherModel extends BroadcastReceiver {
     private static int sWorkspaceCellCountX;
     private static int sWorkspaceCellCountY;
     private static int sHotseatCellCount;
+    private static int sHotseatCellCountX;
+    private static int sHotseatCellCountY;
 
     protected int mPreviousConfigMcc;
 
@@ -671,6 +673,12 @@ public class LauncherModel extends BroadcastReceiver {
     public static int getHotseatCellCount() {
         return sHotseatCellCount;
     }
+    public static int getHotseatCellCountX() {
+        return sHotseatCellCountX;
+    }
+    public static int getHotseatCellCountY() {
+        return sHotseatCellCountY;
+    }
 
     /**
      * Updates the model orientation helper to take into account the current layout dimensions when performing
@@ -685,8 +693,10 @@ public class LauncherModel extends BroadcastReceiver {
      * Updates the model orientation helper to take into account the current layout dimensions when performing
      * local/canonical coordinate transformations.
      */
-    static void updateHotseatLayoutCells(int cellCount) {
+    static void updateHotseatLayoutCells(int cellCount, int cellCountX, int cellCountY) {
         sHotseatCellCount = cellCount;
+        sHotseatCellCountX = cellCountX;
+        sHotseatCellCountY = cellCountY;
     }
 
     /**

@@ -76,4 +76,9 @@ public class SeekBarDialogPreference extends DialogPreference implements SeekBar
         }
     }
 
+    @Override
+    public void setDefaultValue(Object defaultValue) {
+        mDefault = (Integer)defaultValue;
+    }
+
 }
