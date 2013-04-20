@@ -342,4 +342,6 @@ s -->
     <string name="preferences_interface_dock_divider_title">Show dock divider</string>
     <string name="preferences_interface_dock_divider_summary">Show divider between homescreen and dock</string>
 
+    <!-- Other preferences -->
+    <string name="preferences_restart_launcher">Restart launcher</string>
 </resources>

@@ -43,6 +43,8 @@ public class Preferences extends PreferenceActivity {
             i = new Intent(Preferences.this, Drawer.class);
         } else if ("preferences_dock_section".equals(key)) {
             i = new Intent(Preferences.this, Dock.class);
+        } else if ("preferences_restart_launcher".equals(key)) {
+            android.os.Process.killProcess(android.os.Process.myPid());
         }
         if (i != null) startActivity(i);
         return true;

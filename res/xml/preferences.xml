@@ -29,4 +29,8 @@
             android:key="preferences_dock_section"
             android:title="@string/preferences_interface_dock_title" />
 
+    <Preference android:id="@+id/preferences_dock_section"
+            android:key="preferences_restart_launcher"
+            android:title="@string/preferences_restart_launcher" />
+
 </PreferenceScreen>
