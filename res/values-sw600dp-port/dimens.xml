@@ -18,8 +18,8 @@
 <!-- AppsCustomize -->
     <dimen name="apps_customize_cell_width">96dp</dimen>
     <dimen name="apps_customize_cell_height">108dp</dimen>
-    <dimen name="apps_customize_pageLayoutWidthGap">24dp</dimen>
-    <dimen name="apps_customize_pageLayoutHeightGap">24dp</dimen>
+    <dimen name="apps_customize_pageLayoutWidthGap">8dp</dimen>
+    <dimen name="apps_customize_pageLayoutHeightGap">8dp</dimen>
     <dimen name="apps_customize_pageLayoutPaddingTop">25dp</dimen>
     <dimen name="apps_customize_pageLayoutPaddingBottom">10dp</dimen>
 
