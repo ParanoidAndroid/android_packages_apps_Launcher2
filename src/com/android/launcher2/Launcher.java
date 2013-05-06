@@ -2990,7 +2990,6 @@ public final class Launcher extends Activity
 
     void showAllApps(boolean animated) {
         mIsAbsent = false;
-        fadeColors(250, true);
 
         if (mState != State.WORKSPACE) return;
 
