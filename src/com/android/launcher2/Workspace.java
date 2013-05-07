@@ -355,7 +355,10 @@ public class Workspace extends SmoothPagedView
             cellCountX = PreferencesProvider.getCellCountX(cellCountX);
             cellCountY = PreferencesProvider.getCellCountY(cellCountY);
         //}
-        
+
+        cellCountX = Math.min(cellCountX, res.getInteger(R.integer.cell_max_count_x));
+        cellCountY = Math.min(cellCountY, res.getInteger(R.integer.cell_max_count_y));
+
         a.recycle();
 
         setOnHierarchyChangeListener(this);
