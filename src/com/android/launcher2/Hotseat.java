@@ -59,8 +59,10 @@ public class Hotseat extends FrameLayout {
         Resources r = context.getResources();
         mCellCountX = a.getInt(R.styleable.Hotseat_cellCountX, -1);
         mCellCountX = PreferencesProvider.getNumberIcons(mCellCountX);
+        mCellCountX = Math.min(mCellCountX, R.integer.hotseat_max_cell_count);
         mCellCountY = a.getInt(R.styleable.Hotseat_cellCountY, -1);
         mCellCountY = PreferencesProvider.getNumberIconsVertical(mCellCountY);
+        mCellCountY = Math.min(mCellCountY, R.integer.hotseat_max_cell_count);
         mTransposeLayoutWithOrientation = r
                 .getBoolean(R.bool.hotseat_transpose_layout_with_orientation);
         mIsLandscape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
