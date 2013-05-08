@@ -1356,7 +1356,7 @@ public final class Launcher extends Activity
                 if (mState == State.WORKSPACE) {
                     fadeColors(500, false);
                 } else if (mState == State.APPS_CUSTOMIZE) {
-                    fadeColors(500, true);
+                    fadeColors(500, false);
                 }
             }
 
@@ -2990,6 +2990,7 @@ public final class Launcher extends Activity
 
     void showAllApps(boolean animated) {
         mIsAbsent = false;
+        fadeColors(250, false);
 
         if (mState != State.WORKSPACE) return;
 
