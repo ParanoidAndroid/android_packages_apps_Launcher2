@@ -29,6 +29,10 @@
             android:key="preferences_dock_section"
             android:title="@string/preferences_interface_dock_title" />
 
+    <CheckBoxPreference android:key="ui_general_orientation"
+             android:title="@string/preferences_interface_general_orientation_title"
+             android:defaultValue="@bool/allow_rotation" />
+
     <Preference android:id="@+id/preferences_dock_section"
             android:key="preferences_restart_launcher"
             android:title="@string/preferences_restart_launcher" />

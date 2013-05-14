@@ -19,6 +19,7 @@ package com.android.launcher2.preference;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 
@@ -31,6 +32,19 @@ public class Preferences extends PreferenceActivity {
         super.onCreate(savedInstanceState);
 
         addPreferencesFromResource(R.xml.preferences);
+
+        findPreference("ui_general_orientation")
+                .setOnPreferenceChangeListener(
+                        new OnPreferenceChangeListener() {
+
+                            @Override
+                            public boolean onPreferenceChange(
+                                    Preference preference, Object newValue) {
+                                PreferencesProvider.setBoolean(
+                                        preference.getKey(), (Boolean) newValue);
+                                return true;
+                            }
+                        });
     }
 
     @Override
