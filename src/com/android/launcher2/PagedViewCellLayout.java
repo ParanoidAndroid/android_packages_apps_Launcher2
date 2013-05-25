@@ -192,7 +192,7 @@ public class PagedViewCellLayout extends ViewGroup implements Page {
         int numWidthGaps = mCellCountX - 1;
         int numHeightGaps = mCellCountY - 1;
 
-        if (mOriginalWidthGap < 0 || mOriginalHeightGap < 0) {
+//        if (mOriginalWidthGap < 0 || mOriginalHeightGap < 0) {
             int hSpace = widthSpecSize - getPaddingLeft() - getPaddingRight();
             int vSpace = heightSpecSize - getPaddingTop() - getPaddingBottom();
             int hFreeSpace = hSpace - (mCellCountX * mOriginalCellWidth);
@@ -201,10 +201,10 @@ public class PagedViewCellLayout extends ViewGroup implements Page {
             mHeightGap = Math.min(mMaxGap,numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0);
 
             mChildren.setGap(mWidthGap, mHeightGap);
-        } else {
-            mWidthGap = mOriginalWidthGap;
-            mHeightGap = mOriginalHeightGap;
-        }
+//        } else {
+//            mWidthGap = mOriginalWidthGap;
+//            mHeightGap = mOriginalHeightGap;
+//        }
 
         // Initial values correspond to widthSpecMode == MeasureSpec.EXACTLY
         int newWidth = widthSpecSize;
