@@ -23,8 +23,8 @@
     <dimen name="button_bar_height">82dp</dimen>
     <dimen name="button_bar_height_top_padding">12dp</dimen>
     <dimen name="button_bar_height_bottom_padding">12dp</dimen>
-    <dimen name="button_bar_width_left_padding">12dp</dimen>
-    <dimen name="button_bar_width_right_padding">12dp</dimen>
+    <dimen name="button_bar_width_left_padding">22dp</dimen>
+    <dimen name="button_bar_width_right_padding">22dp</dimen>
     <dimen name="button_bar_height_plus_padding">82dp</dimen>
     <dimen name="hotseat_width_gap">58dp</dimen>
 
@@ -59,10 +59,10 @@
     <dimen name="dragViewOffsetY">0dp</dimen>
 
 <!-- CellLayout padding land / port-->
-    <dimen name="cell_layout_left_padding_port">4dp</dimen>
-    <dimen name="cell_layout_left_padding_land">4dp</dimen>
-    <dimen name="cell_layout_right_padding_port">4dp</dimen>
-    <dimen name="cell_layout_right_padding_land">4dp</dimen>
+    <dimen name="cell_layout_left_padding_port">14dp</dimen>
+    <dimen name="cell_layout_left_padding_land">72dp</dimen>
+    <dimen name="cell_layout_right_padding_port">14dp</dimen>
+    <dimen name="cell_layout_right_padding_land">72dp</dimen>
     <dimen name="cell_layout_top_padding_port">12dp</dimen>
     <dimen name="cell_layout_top_padding_land">12dp</dimen>
     <dimen name="cell_layout_bottom_padding_port">8dp</dimen>

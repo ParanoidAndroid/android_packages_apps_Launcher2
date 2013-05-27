@@ -21,6 +21,10 @@
     <dimen name="apps_customize_pageLayoutPaddingLeft">16dp</dimen>
     <dimen name="apps_customize_pageLayoutPaddingRight">16dp</dimen>
 
+<!-- Hotseat -->
+    <dimen name="button_bar_width_left_padding">78dp</dimen>
+    <dimen name="button_bar_width_right_padding">78dp</dimen>
+
 <!-- Workspace -->
     <dimen name="workspace_page_spacing">50dp</dimen>
 
