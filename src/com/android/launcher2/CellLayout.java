@@ -893,11 +893,6 @@ public class CellLayout extends ViewGroup {
         return distance;
     }
 
-    void setCellGaps(int widthGap, int heightGap) {
-        mWidthGap = mOriginalWidthGap = widthGap;
-        mHeightGap = mOriginalHeightGap = heightGap;
-    }
-
     int getCellWidth() {
         return mCellWidth;
     }

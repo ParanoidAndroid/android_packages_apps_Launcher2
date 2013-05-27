@@ -264,7 +264,6 @@ public class Workspace extends SmoothPagedView
     //Preferences
     private int mNumberHomescreens;
     private int mDefaultHomescreen;
-    private boolean mStretchScreens;
     private boolean mShowSearchBar;
     private boolean mHideIconLabels;
     private boolean mShowScrollingIndicator;
@@ -372,7 +371,6 @@ public class Workspace extends SmoothPagedView
         if (mDefaultHomescreen >= mNumberHomescreens) {
             mDefaultHomescreen = mNumberHomescreens / 2;
         }
-        mStretchScreens = PreferencesProvider.getStretchScreens();
         mShowSearchBar = PreferencesProvider.getShowSearchBar();
         mHideIconLabels = PreferencesProvider.getHideIconLabels();
         mShowScrollingIndicator = PreferencesProvider.getHomescreenShowScrollingIndicator();
@@ -457,9 +455,6 @@ public class Workspace extends SmoothPagedView
                 (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         for (int i = 0; i < mNumberHomescreens; i++) {
             CellLayout screen = (CellLayout) inflater.inflate(R.layout.workspace_screen, null);
-            if (mStretchScreens) {
-                screen.setCellGaps(-1, -1);
-            }
             addView(screen);
         }
 
