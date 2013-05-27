@@ -28,7 +28,7 @@ public final class PreferencesProvider {
     public static final String PREFERENCES_CHANGED = "preferences_changed";
 
     private static SharedPreferences mPreferences;
-    private static Map<String, ?> sKeyValues;
+    private static Map sKeyValues;
 
     public static void load(Context context) {
         mPreferences = context.getSharedPreferences(PREFERENCES_KEY, 0);
@@ -55,6 +55,7 @@ public final class PreferencesProvider {
         editor.putInt(key, value);
         editor.putBoolean(PreferencesProvider.PREFERENCES_CHANGED, true);
         editor.commit();
+        sKeyValues.put(key, value);
     }
 
     public static void setBoolean(String key, boolean value) {
@@ -62,6 +63,7 @@ public final class PreferencesProvider {
         editor.putBoolean(key, value);
         editor.putBoolean(PreferencesProvider.PREFERENCES_CHANGED, true);
         editor.commit();
+        sKeyValues.put(key, value);
     }
 
     public static void setString(String key, String value) {
@@ -69,6 +71,7 @@ public final class PreferencesProvider {
         editor.putString(key, value);
         editor.putBoolean(PreferencesProvider.PREFERENCES_CHANGED, true);
         editor.commit();
+        sKeyValues.put(key, value);
     }
 
     public static int getNumberHomescreens() {

@@ -68,8 +68,8 @@ public class DoubleNumberPickerPreference extends DialogPreference {
         
         String[] values = PreferencesProvider.getString(getKey(), " ").split("\\|");
         try {
-            mDefault1 = Integer.parseInt(values[1]);
-            mDefault2 = Integer.parseInt(values[0]);
+            mDefault1 = Integer.parseInt(values[0]);
+            mDefault2 = Integer.parseInt(values[1]);
         } catch (Exception e) {
         }
 
@@ -135,7 +135,7 @@ public class DoubleNumberPickerPreference extends DialogPreference {
     }
 
     private int getPersistedValue(int value) {
-        String[] values = getPersistedString(mDefault1 + "|" + mDefault2).split("\\|");
+        String[] values = PreferencesProvider.getString(getKey(), mDefault1 + "|" + mDefault2).split("\\|");
         if (value == 1) {
             try {
                 return Integer.parseInt(values[0]);
