@@ -342,5 +342,6 @@ s -->
 
     <!-- Other preferences -->
     <string name="preferences_interface_general_orientation_title">Auto-rotate screen</string>
+    <string name="preferences_pinch_expanded_title">Pinch to enable expanded desktop</string>
     <string name="preferences_restart_launcher">Restart launcher</string>
 </resources>

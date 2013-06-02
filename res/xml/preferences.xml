@@ -33,6 +33,10 @@
              android:title="@string/preferences_interface_general_orientation_title"
              android:defaultValue="@bool/allow_rotation" />
 
+    <CheckBoxPreference android:key="ui_pinch_expanded"
+             android:title="@string/preferences_pinch_expanded_title"
+             android:defaultValue="false" />
+
     <Preference android:id="@+id/preferences_dock_section"
             android:key="preferences_restart_launcher"
             android:title="@string/preferences_restart_launcher" />

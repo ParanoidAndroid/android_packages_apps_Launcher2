@@ -41,8 +41,10 @@ import android.graphics.Region.Op;
 import android.graphics.drawable.Drawable;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.FloatMath;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
@@ -210,6 +212,10 @@ public class Workspace extends SmoothPagedView
     final static float START_DAMPING_TOUCH_SLOP_ANGLE = (float) Math.PI / 6;
     final static float MAX_SWIPE_ANGLE = (float) Math.PI / 3;
     final static float TOUCH_SLOP_DAMPING_FACTOR = 4;
+
+    // Variables to control pinch
+    private float mOldDist;
+    private boolean mIsZoom;
 
     // Relating to the animation of items being dropped externally
     public static final int ANIMATE_INTO_POSITION_AND_DISAPPEAR = 0;
@@ -725,19 +731,73 @@ public class Workspace extends SmoothPagedView
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         switch (ev.getAction() & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_DOWN:
+            if (mIsZoom) {
+                break;
+            }
             mXDown = ev.getX();
             mYDown = ev.getY();
+            mIsZoom = false;
             break;
         case MotionEvent.ACTION_POINTER_UP:
         case MotionEvent.ACTION_UP:
+            if (mIsZoom) {
+                break;
+            }
             if (mTouchState == TOUCH_STATE_REST) {
                 final CellLayout currentPage = (CellLayout) getChildAt(mCurrentPage);
                 if (!currentPage.lastDownOnOccupiedCell()) {
                     onWallpaperTap(ev);
                 }
             }
+            mIsZoom = false;
+            break;
+        case MotionEvent.ACTION_POINTER_DOWN:
+            boolean pinch = PreferencesProvider.getPinchExpanded();
+            if (!pinch) {
+                break;
+            }
+            mOldDist = spacing(ev);
+            if (mOldDist > 10f) {
+                mIsZoom = true;
+            }
+            break;
+        case MotionEvent.ACTION_MOVE:
+            if (mIsZoom) {
+                Context context = getContext();
+                boolean expanded = Settings.System.getInt(context.getContentResolver(),
+                        Settings.System.EXPANDED_DESKTOP_STATE, 0) == 1;
+                float newDist = spacing(ev);
+                if (newDist > mOldDist && newDist != -1f && newDist > 150f) {
+                    mIsZoom = false;
+                    if (!expanded) {
+                        Settings.System.putInt(context.getContentResolver(),
+                                Settings.System.EXPANDED_DESKTOP_STATE, 1);
+                    }
+                } else if (newDist < mOldDist && newDist != -1f) {
+                    mIsZoom = false;
+                    if (expanded) {
+                        Settings.System.putInt(context.getContentResolver(),
+                                Settings.System.EXPANDED_DESKTOP_STATE, 0);
+                    }
+                }
+            }
+            break;
+        default:
+            mIsZoom = false;
+            break;
         }
         return super.onInterceptTouchEvent(ev);
+    }
+
+    private float spacing(MotionEvent event) {
+        try {
+            float x = event.getX(0) - event.getX(1);
+            float y = event.getY(0) - event.getY(1);
+            return FloatMath.sqrt(x * x + y * y);
+        } catch (Throwable t) {
+            // ignore
+            return -1f;
+        }
     }
 
     protected void reinflateWidgetsIfNecessary() {
