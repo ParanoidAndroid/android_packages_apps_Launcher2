@@ -175,16 +175,18 @@ public class DragController {
      *          Makes dragging feel more precise, e.g. you can clip out a transparent border
      */
     public void startDrag(View v, Bitmap bmp, DragSource source, Object dragInfo, int dragAction,
-            Rect dragRegion, float initialDragViewScale) {
+            Point extraPadding, float initialDragViewScale) {
         int[] loc = mCoordinatesTemp;
         mLauncher.getDragLayer().getLocationInDragLayer(v, loc);
-        int dragLayerX = loc[0] + v.getPaddingLeft() +
+        int viewExtraPaddingLeft = extraPadding != null ? extraPadding.x : 0;
+        int viewExtraPaddingTop = extraPadding != null ? extraPadding.y : 0;
+        int dragLayerX = loc[0] + v.getPaddingLeft() + viewExtraPaddingLeft +
                 (int) ((initialDragViewScale * bmp.getWidth() - bmp.getWidth()) / 2);
-        int dragLayerY = loc[1] + v.getPaddingTop() +
+        int dragLayerY = loc[1] + v.getPaddingTop() + viewExtraPaddingTop +
                 (int) ((initialDragViewScale * bmp.getHeight() - bmp.getHeight()) / 2);
 
-        startDrag(bmp, dragLayerX, dragLayerY, source, dragInfo, dragAction, null, dragRegion,
-                initialDragViewScale);
+        startDrag(bmp, dragLayerX, dragLayerY, source, dragInfo, dragAction, null,
+                null, initialDragViewScale);
 
         if (dragAction == DRAG_ACTION_MOVE) {
             v.setVisibility(View.GONE);
@@ -326,18 +328,19 @@ public class DragController {
         }
         endDrag();
     }
-    public void onAppsRemoved(ArrayList<String> packageNames, Context context) {
+    public void onAppsRemoved(ArrayList<ApplicationInfo> appInfos, Context context) {
         // Cancel the current drag if we are removing an app that we are dragging
         if (mDragObject != null) {
             Object rawDragInfo = mDragObject.dragInfo;
             if (rawDragInfo instanceof ShortcutInfo) {
                 ShortcutInfo dragInfo = (ShortcutInfo) rawDragInfo;
-                for (String pn : packageNames) {
+                for (ApplicationInfo info : appInfos) {
                     // Added null checks to prevent NPE we've seen in the wild
                     if (dragInfo != null &&
                         dragInfo.intent != null) {
-                        boolean isSamePackage = dragInfo.getPackageName().equals(pn);
-                        if (isSamePackage) {
+                        boolean isSameComponent =
+                                dragInfo.intent.getComponent().equals(info.componentName);
+                        if (isSameComponent) {
                             cancelDrag();
                             return;
                         }
@@ -486,6 +489,23 @@ public class DragController {
         DropTarget dropTarget = findDropTarget(x, y, coordinates);
         mDragObject.x = coordinates[0];
         mDragObject.y = coordinates[1];
+        checkTouchMove(dropTarget);
+
+        // Check if we are hovering over the scroll areas
+        mDistanceSinceScroll +=
+            Math.sqrt(Math.pow(mLastTouch[0] - x, 2) + Math.pow(mLastTouch[1] - y, 2));
+        mLastTouch[0] = x;
+        mLastTouch[1] = y;
+        checkScrollState(x, y);
+    }
+
+    public void forceTouchMove() {
+        int[] dummyCoordinates = mCoordinatesTemp;
+        DropTarget dropTarget = findDropTarget(mLastTouch[0], mLastTouch[1], dummyCoordinates);
+        checkTouchMove(dropTarget);
+    }
+
+    private void checkTouchMove(DropTarget dropTarget) {
         if (dropTarget != null) {
             DropTarget delegate = dropTarget.getDropTargetDelegate(mDragObject);
             if (delegate != null) {
@@ -505,42 +525,36 @@ public class DragController {
             }
         }
         mLastDropTarget = dropTarget;
+    }
 
-        // After a scroll, the touch point will still be in the scroll region.
-        // Rather than scrolling immediately, require a bit of twiddling to scroll again
+    private void checkScrollState(int x, int y) {
         final int slop = ViewConfiguration.get(mLauncher).getScaledWindowTouchSlop();
-        mDistanceSinceScroll +=
-            Math.sqrt(Math.pow(mLastTouch[0] - x, 2) + Math.pow(mLastTouch[1] - y, 2));
-        mLastTouch[0] = x;
-        mLastTouch[1] = y;
         final int delay = mDistanceSinceScroll < slop ? RESCROLL_DELAY : SCROLL_DELAY;
+        final DragLayer dragLayer = mLauncher.getDragLayer();
+        final boolean isRtl = (dragLayer.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL);
+        final int forwardDirection = isRtl ? SCROLL_RIGHT : SCROLL_LEFT;
+        final int backwardsDirection = isRtl ? SCROLL_LEFT : SCROLL_RIGHT;
 
         if (x < mScrollZone) {
             if (mScrollState == SCROLL_OUTSIDE_ZONE) {
                 mScrollState = SCROLL_WAITING_IN_ZONE;
-                if (mDragScroller.onEnterScrollArea(x, y, SCROLL_LEFT)) {
-                    mLauncher.getDragLayer().onEnterScrollArea(SCROLL_LEFT);
-                    mScrollRunnable.setDirection(SCROLL_LEFT);
+                if (mDragScroller.onEnterScrollArea(x, y, forwardDirection)) {
+                    dragLayer.onEnterScrollArea(forwardDirection);
+                    mScrollRunnable.setDirection(forwardDirection);
                     mHandler.postDelayed(mScrollRunnable, delay);
                 }
             }
         } else if (x > mScrollView.getWidth() - mScrollZone) {
             if (mScrollState == SCROLL_OUTSIDE_ZONE) {
                 mScrollState = SCROLL_WAITING_IN_ZONE;
-                if (mDragScroller.onEnterScrollArea(x, y, SCROLL_RIGHT)) {
-                    mLauncher.getDragLayer().onEnterScrollArea(SCROLL_RIGHT);
-                    mScrollRunnable.setDirection(SCROLL_RIGHT);
+                if (mDragScroller.onEnterScrollArea(x, y, backwardsDirection)) {
+                    dragLayer.onEnterScrollArea(backwardsDirection);
+                    mScrollRunnable.setDirection(backwardsDirection);
                     mHandler.postDelayed(mScrollRunnable, delay);
                 }
             }
         } else {
             clearScrollRunnable();
-        }
-    }
-
-    public void forceMoveEvent() {
-        if (mDragging) {
-            handleMoveEvent(mDragObject.x, mDragObject.y);
         }
     }
 
@@ -794,8 +808,8 @@ public class DragController {
                 mLauncher.getDragLayer().onExitScrollArea();
 
                 if (isDragging()) {
-                    // Force an update so that we can requeue the scroller if necessary
-                    forceMoveEvent();
+                    // Check the scroll again so that we can requeue the scroller if necessary
+                    checkScrollState(mLastTouch[0], mLastTouch[1]);
                 }
             }
         }

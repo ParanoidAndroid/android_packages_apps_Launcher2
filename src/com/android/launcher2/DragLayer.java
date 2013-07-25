@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
@@ -218,6 +219,31 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
             onInitializeAccessibilityEvent(event);
             event.getText().add(getContext().getString(stringId));
             accessibilityManager.sendAccessibilityEvent(event);
+        }
+    }
+
+    @Override
+    public boolean onRequestSendAccessibilityEvent(View child, AccessibilityEvent event) {
+        Folder currentFolder = mLauncher.getWorkspace().getOpenFolder();
+        if (currentFolder != null) {
+            if (child == currentFolder) {
+                return super.onRequestSendAccessibilityEvent(child, event);
+            }
+            // Skip propagating onRequestSendAccessibilityEvent all for other children
+            // when a folder is open
+            return false;
+        }
+        return super.onRequestSendAccessibilityEvent(child, event);
+    }
+
+    @Override
+    public void addChildrenForAccessibility(ArrayList<View> childrenForAccessibility) {
+        Folder currentFolder = mLauncher.getWorkspace().getOpenFolder();
+        if (currentFolder != null) {
+            // Only add the folder as a child for accessibility when it is open
+            childrenForAccessibility.add(currentFolder);
+        } else {
+            super.addChildrenForAccessibility(childrenForAccessibility);
         }
     }
 
@@ -742,6 +768,13 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
         invalidate();
     }
 
+    /**
+     * Note: this is a reimplementation of View.isLayoutRtl() since that is currently hidden api.
+     */
+    private boolean isLayoutRtl() {
+        return (getLayoutDirection() == LAYOUT_DIRECTION_RTL);
+    }
+
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
@@ -753,8 +786,9 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
             getDescendantRectRelativeToSelf(workspace.getChildAt(0), childRect);
 
             int page = workspace.getNextPage();
-            CellLayout leftPage = (CellLayout) workspace.getChildAt(page - 1);
-            CellLayout rightPage = (CellLayout) workspace.getChildAt(page + 1);
+            final boolean isRtl = isLayoutRtl();
+            CellLayout leftPage = (CellLayout) workspace.getChildAt(isRtl ? page + 1 : page - 1);
+            CellLayout rightPage = (CellLayout) workspace.getChildAt(isRtl ? page - 1 : page + 1);
 
             if (leftPage != null && leftPage.getIsDragOverlapping()) {
                 mLeftHoverDrawable.setBounds(0, childRect.top,

@@ -38,6 +38,7 @@ public class PagedViewWidget extends LinearLayout {
     static final String TAG = "PagedViewWidgetLayout";
 
     private static boolean sDeletePreviewsWhenDetachedFromWindow = true;
+    private static boolean sRecyclePreviewsWhenDetachedFromWindow = true;
 
     private String mDimensionsFormatString;
     CheckForShortPress mPendingCheckForShortPress = null;
@@ -46,6 +47,8 @@ public class PagedViewWidget extends LinearLayout {
     static PagedViewWidget sShortpressTarget = null;
     boolean mIsAppWidget;
     private final Rect mOriginalImagePadding = new Rect();
+    private Object mInfo;
+    private WidgetPreviewLoader mWidgetPreviewLoader;
 
     public PagedViewWidget(Context context) {
         this(context, null);
@@ -80,6 +83,10 @@ public class PagedViewWidget extends LinearLayout {
         sDeletePreviewsWhenDetachedFromWindow = value;
     }
 
+    public static void setRecyclePreviewsWhenDetachedFromWindow(boolean value) {
+        sRecyclePreviewsWhenDetachedFromWindow = value;
+    }
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
@@ -88,8 +95,9 @@ public class PagedViewWidget extends LinearLayout {
             final ImageView image = (ImageView) findViewById(R.id.widget_preview);
             if (image != null) {
                 FastBitmapDrawable preview = (FastBitmapDrawable) image.getDrawable();
-                if (preview != null && preview.getBitmap() != null) {
-                    preview.getBitmap().recycle();
+                if (sRecyclePreviewsWhenDetachedFromWindow &&
+                        mInfo != null && preview != null && preview.getBitmap() != null) {
+                    mWidgetPreviewLoader.recycleBitmap(mInfo, preview.getBitmap());
                 }
                 image.setImageDrawable(null);
             }
@@ -97,13 +105,13 @@ public class PagedViewWidget extends LinearLayout {
     }
 
     public void applyFromAppWidgetProviderInfo(AppWidgetProviderInfo info,
-            int maxWidth, int[] cellSpan) {
+            int maxWidth, int[] cellSpan, WidgetPreviewLoader loader) {
         mIsAppWidget = true;
+        mInfo = info;
         final ImageView image = (ImageView) findViewById(R.id.widget_preview);
         if (maxWidth > -1) {
             image.setMaxWidth(maxWidth);
         }
-        image.setContentDescription(info.label);
         final TextView name = (TextView) findViewById(R.id.widget_name);
         name.setText(info.label);
         final TextView dims = (TextView) findViewById(R.id.widget_dims);
@@ -112,19 +120,22 @@ public class PagedViewWidget extends LinearLayout {
             int vSpan = Math.min(cellSpan[1], LauncherModel.getCellCountY());
             dims.setText(String.format(mDimensionsFormatString, hSpan, vSpan));
         }
+        mWidgetPreviewLoader = loader;
     }
 
-    public void applyFromResolveInfo(PackageManager pm, ResolveInfo info) {
+    public void applyFromResolveInfo(
+            PackageManager pm, ResolveInfo info, WidgetPreviewLoader loader) {
         mIsAppWidget = false;
+        mInfo = info;
         CharSequence label = info.loadLabel(pm);
         final ImageView image = (ImageView) findViewById(R.id.widget_preview);
-        image.setContentDescription(label);
         final TextView name = (TextView) findViewById(R.id.widget_name);
         name.setText(label);
         final TextView dims = (TextView) findViewById(R.id.widget_dims);
         if (dims != null) {
             dims.setText(String.format(mDimensionsFormatString, 1, 1));
         }
+        mWidgetPreviewLoader = loader;
     }
 
     public int[] getPreviewSize() {

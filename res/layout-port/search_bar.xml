@@ -29,10 +29,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/voice_button_container"
-        android:paddingLeft="8dp"
+        android:layout_toStartOf="@+id/voice_button_container"
+        android:paddingStart="8dp"
         android:onClick="onClickSearchButton"
         android:focusable="true"
         android:clickable="true"
@@ -41,6 +41,7 @@
             android:id="@+id/search_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:scaleType="fitStart"
             android:src="@drawable/ic_home_search_normal_holo"
             android:adjustViewBounds="true" />
     </com.android.launcher2.HolographicLinearLayout>
@@ -53,10 +54,10 @@
         android:layout_width="@dimen/search_bar_height"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:paddingRight="8dp"
-        android:gravity="right"
+        android:paddingEnd="8dp"
+        android:gravity="end"
         android:onClick="onClickVoiceButton"
         android:focusable="true"
         android:clickable="true"
@@ -65,6 +66,7 @@
             android:id="@+id/voice_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:scaleType="fitEnd"
             android:src="@drawable/ic_home_voice_search_holo"
             android:adjustViewBounds="true" />
     </com.android.launcher2.HolographicLinearLayout>

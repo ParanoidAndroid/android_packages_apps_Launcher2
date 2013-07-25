@@ -157,6 +157,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         mContent = (CellLayout) findViewById(R.id.folder_content);
         mContent.setGridSize(0, 0);
         mContent.getShortcutsAndWidgets().setMotionEventSplittingEnabled(false);
+        mContent.setInvertIfRtl(true);
         mFolderName = (FolderEditText) findViewById(R.id.folder_name);
         mFolderName.setFolder(this);
         mFolderName.setOnFocusChangeListener(this);
@@ -448,19 +449,14 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                     cling.bringToFront();
                 }
                 setFocusOnFirstChild();
+                setAlpha(1);
+                setScaleX(1);
+                setScaleY(1);
             }
         });
         oa.setDuration(mExpandDuration);
         setLayerType(LAYER_TYPE_HARDWARE, null);
-        buildLayer();
-        post(new Runnable() {
-            public void run() {
-                // Check if the animator changed in the meantime
-                if (oa != mOpenCloseAnimator)
-                    return;
-                oa.start();
-            }
-        });
+        oa.start();
     }
 
     private void sendCustomAccessibilityEvent(int type, String text) {
@@ -505,15 +501,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         });
         oa.setDuration(mExpandDuration);
         setLayerType(LAYER_TYPE_HARDWARE, null);
-        buildLayer();
-        post(new Runnable() {
-            public void run() {
-                // Check if the animator changed in the meantime
-                if (oa != mOpenCloseAnimator)
-                    return;
-                oa.start();
-            }
-        });
+        oa.start();
     }
 
     void notifyDataSetChanged() {
@@ -636,9 +624,17 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         }
     }
 
+    public boolean isLayoutRtl() {
+        return (getLayoutDirection() == LAYOUT_DIRECTION_RTL);
+    }
+
     public void onDragOver(DragObject d) {
         float[] r = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView, null);
         mTargetCell = mContent.findNearestArea((int) r[0], (int) r[1], 1, 1, mTargetCell);
+
+        if (isLayoutRtl()) {
+            mTargetCell[0] = mContent.getCountX() - mTargetCell[0] - 1;
+        }
 
         if (mTargetCell[0] != mPreviousTargetCell[0] || mTargetCell[1] != mPreviousTargetCell[1]) {
             mReorderAlarm.cancelAlarm();
