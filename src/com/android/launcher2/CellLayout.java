@@ -999,7 +999,8 @@ public class CellLayout extends ViewGroup {
         int vFreeSpace = vSpace - (mCountY * mCellHeight);
         mWidthGap = numWidthGaps > 0 ? (hFreeSpace / numWidthGaps) : 0;
         mHeightGap = numHeightGaps > 0 ? (vFreeSpace / numHeightGaps) : 0;
-        mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap);
+        mShortcutsAndWidgets.setCellDimensions(mCellWidth, mCellHeight, mWidthGap, mHeightGap,
+                mCountX);
 
         // Initial values correspond to widthSpecMode == MeasureSpec.EXACTLY
         int newWidth = widthSpecSize;
