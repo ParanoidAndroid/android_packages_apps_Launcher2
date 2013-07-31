@@ -20,10 +20,10 @@
             android:title="@string/preferences_interface_homescreen_title"
             android:summary="@string/preferences_interface_homescreen_summary" />
 
-    <Preference android:id="@+id/preferences_drawer_section"
+    <!--Preference android:id="@+id/preferences_drawer_section"
             android:key="preferences_drawer_section"
             android:title="@string/preferences_interface_drawer_title"
-            android:summary="@string/preferences_interface_drawer_summary" />
+            android:summary="@string/preferences_interface_drawer_summary" /-->
 
     <Preference android:id="@+id/preferences_dock_section"
             android:key="preferences_dock_section"

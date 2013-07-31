@@ -59,7 +59,6 @@ public class AppsCustomizeTabHost extends TabHost implements LauncherTransitiona
     private Runnable mRelayoutAndMakeVisible;
 
     // Preferences
-    private boolean mJoinWidgetsApps;
     private boolean mFadeScrollingIndicator;
 
     public AppsCustomizeTabHost(Context context, AttributeSet attrs) {
@@ -74,7 +73,6 @@ public class AppsCustomizeTabHost extends TabHost implements LauncherTransitiona
         };
 
         // Preferences
-        mJoinWidgetsApps = PreferencesProvider.getJoinWidgetsApps();
         mFadeScrollingIndicator = PreferencesProvider.getDrawerFadeScrollingIndicator();
     }
 

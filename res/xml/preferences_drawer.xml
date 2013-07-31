@@ -24,7 +24,7 @@
         android:entries="@array/preferences_interface_drawer_orientation_entries"
         android:entryValues="@array/preferences_interface_drawer_orientation_values"
         android:defaultValue="horizontal" /-->
-    <Preference android:key="ui_drawer_hidden_apps"
+    <!--Preference android:key="ui_drawer_hidden_apps"
         android:title="@string/preferences_interface_drawer_hidden_apps_title"
         android:summary="@string/preferences_interface_drawer_hidden_apps_summary">
     </Preference>
@@ -33,7 +33,7 @@
             android:title="@string/preferences_interface_drawer_widgets_join_apps_title"
             android:summary="@string/preferences_interface_drawer_widgets_join_apps_summary"
             android:defaultValue="true" />
-    </PreferenceCategory>
+    </PreferenceCategory-->
     <!--PreferenceCategory android:title="@string/preferences_interface_drawer_scrolling_category">
         <ListPreference android:key="ui_drawer_scrolling_transition_effect"
             android:title="@string/preferences_interface_drawer_scrolling_transition_effect_title"
