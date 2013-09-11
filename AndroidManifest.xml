@@ -114,6 +114,11 @@
         <activity android:name="com.android.launcher2.preference.Drawer" />
         <activity android:name="com.android.launcher2.preference.HiddenAppsActivity" />
         <activity android:name="com.android.launcher2.preference.Dock" />
+        <activity android:name="com.android.launcher2.IconPickerActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:launchMode="singleTop" />
 
         <!-- Intent received used to install shortcuts from other applications -->
         <receiver

@@ -29,6 +29,7 @@ import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
@@ -39,6 +40,7 @@ import android.content.ComponentCallbacks2;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -48,11 +50,13 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -94,6 +98,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Advanceable;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -110,6 +116,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -148,6 +155,7 @@ public final class Launcher extends Activity
     private static final int REQUEST_PICK_WALLPAPER = 10;
 
     private static final int REQUEST_BIND_APPWIDGET = 11;
+    static final int REQUEST_PICK_ICON = 13;
 
     static final String EXTRA_SHORTCUT_DUPLICATE = "duplicate";
 
@@ -327,6 +335,8 @@ public final class Launcher extends Activity
     private boolean mShowDockDivider;
     private boolean mAutoRotate;
 
+    private ImageButton mDialogIcon;
+
     private Runnable mBuildLayersRunnable = new Runnable() {
         public void run() {
             if (mWorkspace != null) {
@@ -420,9 +430,6 @@ public final class Launcher extends Activity
         mIconCache = app.getIconCache();
         mDragController = new DragController(this);
         mInflater = getLayoutInflater();
-
-        // Load all preferences
-        PreferencesProvider.load(this);
 
         mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
 
@@ -700,6 +707,60 @@ public final class Launcher extends Activity
                 completeTwoStageWidgetDrop(RESULT_CANCELED, appWidgetId);
             } else if (resultCode == RESULT_OK) {
                 addAppWidgetImpl(appWidgetId, mPendingAddInfo, null, mPendingAddWidgetInfo);
+            }
+            return;
+        } else if (requestCode == REQUEST_PICK_ICON) {
+            mWaitingForResult = false;
+            if (resultCode == RESULT_OK) {
+                if (data == null) {
+                    // Get/Set default icon
+                    String id = (String) mDialogIcon.getTag();
+                    final PackageManager manager = getPackageManager();
+
+                    final Cursor c = getContentResolver().query(LauncherSettings.Favorites.CONTENT_URI,
+                            null, LauncherSettings.Favorites._ID + "=?", new String[]{id}, null);
+                    if (c != null && c.getCount() > 0) {
+                        c.moveToFirst();
+                        final int itemTypeIndex = c.getColumnIndexOrThrow(
+                                LauncherSettings.Favorites.ITEM_TYPE);
+                        final int titleIndex = c.getColumnIndexOrThrow
+                                (LauncherSettings.Favorites.TITLE);
+                        final int iconTypeIndex = c.getColumnIndexOrThrow(
+                                LauncherSettings.Favorites.ICON_TYPE);
+                        final int iconIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.ICON);
+                        final int iconPackageIndex = c.getColumnIndexOrThrow(
+                                LauncherSettings.Favorites.ICON_PACKAGE);
+                        final int iconResourceIndex = c.getColumnIndexOrThrow(
+                                LauncherSettings.Favorites.ICON_RESOURCE);
+                        final int intentIndex = c.getColumnIndexOrThrow
+                                (LauncherSettings.Favorites.INTENT);
+                        String intentDescription = c.getString(intentIndex);
+                        Intent intent = null;
+                        try {
+                            intent = Intent.parseUri(intentDescription, 0);
+                        } catch (URISyntaxException e) {
+                            c.close();
+                            return;
+                        }
+                        int itemType = c.getInt(itemTypeIndex);
+                        ShortcutInfo info = null;
+                        if (itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION) {
+                            info = mModel.getShortcutInfo(manager, intent, this, c, iconIndex,
+                                    titleIndex, -1, null);
+                        } else if (itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT) {
+                            info = mModel.getShortcutInfo(c, this, iconTypeIndex,
+                                    iconPackageIndex, iconResourceIndex, iconIndex,
+                                    titleIndex, -1);
+                        }
+                        mDialogIcon.setImageBitmap(info.getIcon(null));
+                        mDialogIcon.setTag(null);
+                        c.close();
+                    }
+                } else {
+                    // Set custom icon from icon pack
+                    mDialogIcon.setImageBitmap((Bitmap) data.getParcelableExtra(IconPickerActivity.SELECTED_BITMAP_EXTRA));
+                    mDialogIcon.setTag(data.getStringExtra(IconPickerActivity.SELECTED_RESOURCE_EXTRA));
+                }
             }
             return;
         }
@@ -1100,6 +1161,57 @@ public final class Launcher extends Activity
         if (mSearchDropTargetBar != null) {
             mSearchDropTargetBar.setup(this, dragController);
         }
+    }
+
+    /**
+     * Starts shortcut rename dialog.
+     *
+     * @param info The shortcut to be edited
+     */
+    void updateShortcut(final ShortcutInfo info) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View layout = mInflater.inflate(R.layout.dialog_edit, null);
+        mDialogIcon = (ImageButton) layout.findViewById(R.id.dialog_edit_icon);
+        mDialogIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        mDialogIcon.setImageBitmap(info.getIcon(mIconCache));
+        mDialogIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDialogIcon.setTag(String.valueOf(info.id));
+                IconPackHelper.pickIconPack(Launcher.this, true);
+            }
+        });
+        final EditText title = (EditText) layout.findViewById(R.id.dialog_edit_text);
+        title.setText(info.title);
+        builder.setView(layout)
+                .setTitle(info.title)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        if (!info.title.equals(title.getText())) {
+                            info.setTitle(title.getText());
+                        }
+                        if (mDialogIcon.getTag() != null) {
+                            info.customIconResource = (String) mDialogIcon.getTag();
+                            Drawable d = mModel.getDrawableForCustomIcon(Launcher.this, info.customIconResource);
+                            if (d != null) {
+                                info.setIcon(Utilities.createIconBitmap(d, Launcher.this));
+                            }
+                        } else {
+                            info.customIconResource = null;
+                            info.setIcon(((BitmapDrawable)mDialogIcon.getDrawable()).getBitmap());
+                        }
+                        LauncherModel.updateItemInDatabase(Launcher.this, info);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null);
+        builder.show();
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                mDialogIcon = null;
+            }
+        });
     }
 
     /**

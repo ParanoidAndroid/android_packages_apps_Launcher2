@@ -24,8 +24,11 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 
 import com.android.launcher.R;
+import com.android.launcher2.IconPackHelper;
 
 public class Preferences extends PreferenceActivity {
+
+    private Preference mIconPackPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,22 @@ public class Preferences extends PreferenceActivity {
 
         findPreference("ui_general_orientation").setOnPreferenceChangeListener(listener);
         findPreference("ui_pinch_expanded").setOnPreferenceChangeListener(listener);
+
+        mIconPackPreference = findPreference("ui_general_iconpack");
+    }
+
+    @Override
+    public void onResume() {
+        int numIconPacks = IconPackHelper.getSupportedPackages(Preferences.this).size();
+        if (numIconPacks > 0) {
+            mIconPackPreference.setSummary(
+                    R.string.preferences_interface_general_iconpack_summary);
+            mIconPackPreference.setEnabled(true);
+        } else {
+            mIconPackPreference.setSummary(R.string.no_iconpacks_summary);
+            mIconPackPreference.setEnabled(false);
+        }
+        super.onResume();
     }
 
     @Override
@@ -55,6 +74,8 @@ public class Preferences extends PreferenceActivity {
             i = new Intent(Preferences.this, Drawer.class);
         } else if ("preferences_dock_section".equals(key)) {
             i = new Intent(Preferences.this, Dock.class);
+        } else if (preference.getKey().equals("ui_general_iconpack")) {
+            IconPackHelper.pickIconPack(Preferences.this, false);
         } else if ("preferences_restart_launcher".equals(key)) {
             android.os.Process.killProcess(android.os.Process.myPid());
         }

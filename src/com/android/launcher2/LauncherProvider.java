@@ -66,7 +66,7 @@ public class LauncherProvider extends ContentProvider {
 
     private static final String DATABASE_NAME = "launcher.db";
 
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 13;
 
     static final String AUTHORITY = "com.android.launcher2.settings";
 
@@ -291,7 +291,8 @@ public class LauncherProvider extends ContentProvider {
                     "iconResource TEXT," +
                     "icon BLOB," +
                     "uri TEXT," +
-                    "displayMode INTEGER" +
+                    "displayMode INTEGER," +
+                    "customIcon TEXT" +
                     ");");
 
             // Database was just created, so wipe any previous widgets
@@ -501,6 +502,11 @@ public class LauncherProvider extends ContentProvider {
                 // back in the Donut days
                 updateContactsShortcuts(db);
                 version = 12;
+            }
+
+            if (oldVersion < 13) {
+                db.execSQL("ALTER TABLE favorites ADD customIcon TEXT;");
+                version = 13;
             }
 
             if (version != DATABASE_VERSION) {

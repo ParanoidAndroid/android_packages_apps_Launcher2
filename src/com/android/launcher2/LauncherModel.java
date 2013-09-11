@@ -49,6 +49,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -57,6 +58,7 @@ import android.os.Parcelable;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.launcher.R;
@@ -1362,6 +1364,8 @@ public class LauncherModel extends BroadcastReceiver {
                             .getColumnIndexOrThrow(LauncherSettings.Favorites.SPANX);
                     final int spanYIndex = c
                             .getColumnIndexOrThrow(LauncherSettings.Favorites.SPANY);
+                    final int customIconIndex = c.getColumnIndexOrThrow(
+                            LauncherSettings.Favorites.CUSTOM_ICON);
                     // final int uriIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.URI);
                     // final int displayModeIndex = c.getColumnIndexOrThrow(
                     // LauncherSettings.Favorites.DISPLAY_MODE);
@@ -1389,11 +1393,11 @@ public class LauncherModel extends BroadcastReceiver {
 
                                     if (itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION) {
                                         info = getShortcutInfo(manager, intent, context, c,
-                                                iconIndex, titleIndex, mLabelCache);
+                                                iconIndex, titleIndex, customIconIndex, mLabelCache);
                                     } else {
                                         info = getShortcutInfo(c, context, iconTypeIndex,
                                                 iconPackageIndex, iconResourceIndex, iconIndex,
-                                                titleIndex);
+                                                titleIndex, -1);
 
                                         // App shortcuts that used to be automatically added to Launcher
                                         // didn't always have the correct intent flags set, so do that
@@ -2214,7 +2218,7 @@ public class LauncherModel extends BroadcastReceiver {
      * This is called from the code that adds shortcuts from the intent receiver. This doesn't have a Cursor, but
      */
     public ShortcutInfo getShortcutInfo(PackageManager manager, Intent intent, Context context) {
-        return getShortcutInfo(manager, intent, context, null, -1, -1, null);
+        return getShortcutInfo(manager, intent, context, null, -1, -1, -1, null);
     }
 
     /**
@@ -2222,7 +2226,7 @@ public class LauncherModel extends BroadcastReceiver {
      * in missing data like the title and icon.
      */
     public ShortcutInfo getShortcutInfo(PackageManager manager, Intent intent, Context context,
-            Cursor c, int iconIndex, int titleIndex, HashMap<Object, CharSequence> labelCache) {
+            Cursor c, int iconIndex, int titleIndex, int customIconIndex, HashMap<Object, CharSequence> labelCache) {
         Bitmap icon = null;
         final ShortcutInfo info = new ShortcutInfo();
 
@@ -2282,10 +2286,20 @@ public class LauncherModel extends BroadcastReceiver {
             icon = getFallbackIcon();
             info.usingFallbackIcon = true;
         }
+        Bitmap customIcon = getCustomIconFromCursor(c, context, customIconIndex);
+        if (customIcon != null) {
+            icon = customIcon;
+        }
         info.setIcon(icon);
 
+        // from the db
+        if (info.title == null) {
+            if (c != null) {
+                info.title =  c.getString(titleIndex);
+            }
+        }
         // from the resource
-        if (resolveInfo != null) {
+        if (info.title == null && resolveInfo != null) {
             ComponentName key = LauncherModel.getComponentNameFromResolveInfo(resolveInfo);
             if (labelCache != null && labelCache.containsKey(key)) {
                 info.title = labelCache.get(key);
@@ -2294,12 +2308,6 @@ public class LauncherModel extends BroadcastReceiver {
                 if (labelCache != null) {
                     labelCache.put(key, info.title);
                 }
-            }
-        }
-        // from the db
-        if (info.title == null) {
-            if (c != null) {
-                info.title = c.getString(titleIndex);
             }
         }
         // fall back to the class name of the activity
@@ -2328,11 +2336,41 @@ public class LauncherModel extends BroadcastReceiver {
         return items;
     }
 
+    public Drawable getDrawableForCustomIcon(Context context, String customIconResource) {
+        String[] splitResource = customIconResource.split("\\|");
+        String packageName = splitResource[0];
+        String resource = splitResource[1];
+        PackageManager packageManager = context.getPackageManager();
+        Resources resources;
+        try {
+            resources = packageManager.getResourcesForApplication(packageName);
+            int id = resources.getIdentifier(resource, "drawable", packageName);
+            return mIconCache.getFullResIcon(resources, id);
+        } catch (NameNotFoundException e) {
+        }
+        return null;
+    }
+
+    private Bitmap getCustomIconFromCursor(Cursor c, Context context, int customIconIndex) {
+        if (c == null || customIconIndex == -1) {
+            return null;
+        }
+        String customIconResource = c.getString(customIconIndex);
+        if (!TextUtils.isEmpty(customIconResource)) {
+            Drawable d = getDrawableForCustomIcon(context, customIconResource);
+            if (d != null) {
+                return Utilities.createIconBitmap(
+                        d, context);
+            }
+        }
+        return null;
+    }
+
     /**
      * Make an ShortcutInfo object for a shortcut that isn't an application.
      */
-    private ShortcutInfo getShortcutInfo(Cursor c, Context context, int iconTypeIndex,
-            int iconPackageIndex, int iconResourceIndex, int iconIndex, int titleIndex) {
+    public ShortcutInfo getShortcutInfo(Cursor c, Context context, int iconTypeIndex,
+            int iconPackageIndex, int iconResourceIndex, int iconIndex, int titleIndex, int customIconIndex) {
 
         Bitmap icon = null;
         final ShortcutInfo info = new ShortcutInfo();
@@ -2385,6 +2423,10 @@ public class LauncherModel extends BroadcastReceiver {
                 info.usingFallbackIcon = true;
                 info.customIcon = false;
                 break;
+        }
+        Bitmap customIcon = getCustomIconFromCursor(c, context, customIconIndex);
+        if (customIcon != null) {
+            icon = customIcon;
         }
         info.setIcon(icon);
         return info;

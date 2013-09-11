@@ -22,6 +22,7 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -46,6 +47,7 @@ import android.widget.TextView;
 
 import com.android.launcher.R;
 import com.android.launcher2.FolderInfo.FolderListener;
+import com.android.launcher2.ShortcutInfo.ShortcutListener;
 import com.android.launcher2.preference.PreferencesProvider;
 
 import java.util.ArrayList;
@@ -57,7 +59,7 @@ import java.util.Comparator;
  */
 public class Folder extends LinearLayout implements DragSource, View.OnClickListener,
         View.OnLongClickListener, DropTarget, FolderListener, TextView.OnEditorActionListener,
-        View.OnFocusChangeListener {
+        View.OnFocusChangeListener, ShortcutListener {
     private static final String TAG = "Launcher.Folder";
 
     protected DragController mDragController;
@@ -1047,6 +1049,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             findAndSetEmptyCells(item);
         }
         createAndAddShortcut(item);
+        item.setListener(this);
         LauncherModel.addOrMoveItemInDatabase(
                 mLauncher, item, mInfo.id, 0, item.cellX, item.cellY);
     }
@@ -1119,4 +1122,19 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             startEditingFolderName();
         }
     }
+
+    @Override
+    public void onTitleChanged(ShortcutInfo item) {
+        TextView textView = (TextView) getViewForInfo(item);
+        textView.setText(item.title);
+    }
+
+    @Override
+    public void onIconChanged(ShortcutInfo item) {
+        TextView textView = (TextView) getViewForInfo(item);
+        textView.setCompoundDrawablesWithIntrinsicBounds(null,
+                new FastBitmapDrawable(item.getIcon(mIconCache)), null, null);
+        mInfo.itemsChanged();
+    }
+
 }

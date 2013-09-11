@@ -27,8 +27,11 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 
 import java.util.HashMap;
+
+import com.android.launcher2.preference.PreferencesProvider;
 
 /**
  * Cache of application icons.  Icons can be made from any thread.
@@ -38,6 +41,7 @@ public class IconCache {
     private static final String TAG = "Launcher.IconCache";
 
     private static final int INITIAL_ICON_CACHE_CAPACITY = 50;
+    private IconPackHelper mIconPackHelper;
 
     private static class CacheEntry {
         public Bitmap icon;
@@ -61,6 +65,12 @@ public class IconCache {
 
         // need to set mIconDpi before getting default icon
         mDefaultIcon = makeDefaultIcon();
+
+        String iconPack = PreferencesProvider.getIconPack();
+        if (!TextUtils.isEmpty(iconPack)) {
+            mIconPackHelper = new IconPackHelper(context);
+            mIconPackHelper.loadIconPack(iconPack);
+        }
     }
 
     public Drawable getFullResDefaultActivityIcon() {
@@ -99,7 +109,13 @@ public class IconCache {
     }
 
     public Drawable getFullResIcon(ActivityInfo info) {
-
+        int iconId = 0;
+        if (mIconPackHelper != null && mIconPackHelper.isIconPackLoaded()) {
+            iconId = mIconPackHelper.getResourceIdForActivityIcon(info);
+            if (iconId != 0) {
+                return getFullResIcon(mIconPackHelper.getIconPackResources(), iconId);
+            }
+        }
         Resources resources;
         try {
             resources = mPackageManager.getResourcesForApplication(
@@ -108,7 +124,7 @@ public class IconCache {
             resources = null;
         }
         if (resources != null) {
-            int iconId = info.getIconResource();
+            iconId = info.getIconResource();
             if (iconId != 0) {
                 return getFullResIcon(resources, iconId);
             }

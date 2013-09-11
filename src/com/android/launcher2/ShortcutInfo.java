@@ -34,6 +34,8 @@ class ShortcutInfo extends ItemInfo {
      */
     Intent intent;
 
+    String customIconResource;
+
     /**
      * Indicates whether the icon comes from an application's resource (if false)
      * or from a custom Bitmap (if true.)
@@ -56,6 +58,12 @@ class ShortcutInfo extends ItemInfo {
      * The application icon.
      */
     private Bitmap mIcon;
+
+    /**
+     * Title change listener
+     */
+    private ArrayList<ShortcutListener> mListeners =
+            new ArrayList<ShortcutListener>();
 
     ShortcutInfo() {
         itemType = LauncherSettings.BaseLauncherColumns.ITEM_TYPE_SHORTCUT;
@@ -84,6 +92,9 @@ class ShortcutInfo extends ItemInfo {
 
     public void setIcon(Bitmap b) {
         mIcon = b;
+        for (ShortcutListener i : mListeners) {
+            i.onIconChanged(this);
+        }
     }
 
     public Bitmap getIcon(IconCache iconCache) {
@@ -113,6 +124,19 @@ class ShortcutInfo extends ItemInfo {
         itemType = LauncherSettings.BaseLauncherColumns.ITEM_TYPE_APPLICATION;
     }
 
+    public void setTitle(CharSequence title) {
+        this.title = title;
+        for (ShortcutListener i : mListeners) {
+            i.onTitleChanged(this);
+        }
+    }
+
+    void setListener(ShortcutListener listener) {
+        if (!mListeners.contains(listener) && listener != null) {
+            mListeners.add(listener);
+        }
+    }
+
     @Override
     void onAddToDatabase(ContentValues values) {
         super.onAddToDatabase(values);
@@ -123,6 +147,7 @@ class ShortcutInfo extends ItemInfo {
         String uri = intent != null ? intent.toUri(0) : null;
         values.put(LauncherSettings.BaseLauncherColumns.INTENT, uri);
 
+        values.put(LauncherSettings.BaseLauncherColumns.CUSTOM_ICON, customIconResource);
         if (customIcon) {
             values.put(LauncherSettings.BaseLauncherColumns.ICON_TYPE,
                     LauncherSettings.BaseLauncherColumns.ICON_TYPE_BITMAP);
@@ -157,6 +182,11 @@ class ShortcutInfo extends ItemInfo {
             Log.d(tag, "   title=\"" + info.title + " icon=" + info.mIcon
                     + " customIcon=" + info.customIcon);
         }
+    }
+
+    interface ShortcutListener {
+        public void onTitleChanged(ShortcutInfo item);
+        public void onIconChanged(ShortcutInfo item);
     }
 }
 

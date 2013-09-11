@@ -33,7 +33,7 @@ import android.widget.TextView;
  * because we want to make the bubble taller than the text and TextView's clip is
  * too aggressive.
  */
-public class BubbleTextView extends TextView {
+public class BubbleTextView extends TextView implements ShortcutInfo.ShortcutListener {
     static final float CORNER_RADIUS = 4.0f;
     static final float SHADOW_LARGE_RADIUS = 4.0f;
     static final float SHADOW_SMALL_RADIUS = 1.75f;
@@ -98,6 +98,7 @@ public class BubbleTextView extends TextView {
                 null, null);
         setText(info.title);
         setTag(info);
+        info.setListener(this);
     }
 
     @Override
@@ -159,6 +160,22 @@ public class BubbleTextView extends TextView {
             d.setState(getDrawableState());
         }
         super.drawableStateChanged();
+    }
+
+    @Override
+    public void onTitleChanged(ShortcutInfo item) {
+        if (mTextVisible) {
+            setText(item.title);
+        } else {
+            mVisibleText = item.title;
+        }
+    }
+
+    @Override
+    public void onIconChanged(ShortcutInfo item) {
+        setCompoundDrawablesWithIntrinsicBounds(null,
+                new FastBitmapDrawable(item.getIcon(null)),
+                null, null);
     }
 
     /**
